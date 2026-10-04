@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moghith B K — Portfolio</title>
+<meta name="description" content="Portfolio of Moghith B K — projects, certificates and contact.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Azeret+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- Supabase JS Client -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/portfolio-core.js"></script>
+<style>
+/* ============================================================
+   PORTFOLIO + ADMIN — Supabase Cloud Backend Connected
+   Admin panel: /admin (or append #admin to the URL)
+   ============================================================ */
+:root{
+  --bg:#f5f4f1;
+  --surface:#ffffff;
+  --surface-warm:#edecE8;
+  --border:rgba(22,20,17,.12);
+  --border-strong:rgba(22,20,17,.28);
+  --ink:#141210;
+  --ink-dim:#55524b;
+  --ink-faint:#8e8a82;
+  --accent:#c2410c;          /* terracotta */
+  --accent-soft:#fdeee4;
+  --accent-deep:#9a3412;
+  --sage:#707070;            /* slate grey */
+  --sage-soft:#e7e7e5;
+  --gold:#8e8b86;
+  --shadow:0 1px 2px rgba(22,20,17,.05), 0 10px 30px rgba(22,20,17,.09);
+  --shadow-lg:0 1px 1px rgba(22,20,17,.04), 0 4px 10px rgba(22,20,17,.06), 0 28px 70px rgba(22,20,17,.17);
+  --radius:14px;
+  --font-display:"Instrument Serif", Georgia, serif;
+  --font-body:"Plus Jakarta Sans", "Segoe UI", sans-serif;
+  --font-mono:"Azeret Mono", "Courier New", monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:
+  radial-gradient(1100px 520px at 82% -8%, rgba(255,255,255,.85), transparent 62%),
+  linear-gradient(180deg,#faf9f7 0%, var(--bg) 55%, #efeeea 100%);
+  background-attachment:fixed;color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+button{font-family:inherit;cursor:pointer}
+::selection{background:rgba(20,18,16,.92);color:#fff}
+::-webkit-scrollbar{width:10px}
+::-webkit-scrollbar-track{background:#efeeea}
+::-webkit-scrollbar-thumb{background:#c7c4be;border-radius:8px;border:2px solid #efeeea}
+::-webkit-scrollbar-thumb:hover{background:#a5a19a}
+
+.wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+
+/* ---------- shared bits ---------- */
+.mono-label{font-family:var(--font-mono);font-size:.7rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-dim);display:flex;align-items:center;gap:10px}
+.mono-label::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent);flex:0 0 auto}
+.btn{display:inline-flex;align-items:center;gap:8px;border:none;border-radius:999px;padding:12px 24px;font-size:.92rem;font-weight:600;transition:transform .15s ease, box-shadow .15s ease, background .15s ease;text-decoration:none!important}
+.btn:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.btn-primary{background:linear-gradient(180deg,#35322d,#141210 65%);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.14), 0 1px 3px rgba(20,18,16,.25)}
+.btn-primary:hover{background:linear-gradient(180deg,#3d3a34,#0d0b0a 65%)}
+.btn-accent{background:linear-gradient(180deg,#d4551c,#c2410c 65%);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.22), 0 1px 3px rgba(194,65,12,.35)}
+.btn-accent:hover{background:linear-gradient(180deg,#e0601f,#9a3412 65%)}
+.btn-ghost{background:transparent;color:var(--ink);border:1.5px solid var(--border-strong)}
+.btn-ghost:hover{background:var(--surface)}
+.btn-sm{padding:7px 14px;font-size:.8rem}
+.btn-danger{background:#fee2e2;color:#b91c1c}
+.btn-danger:hover{background:#fecaca}
+.btn svg{width:16px;height:16px}
+
+/* fade-up entrance */
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.reveal{animation:fadeUp .6s cubic-bezier(.2,.7,.3,1) both}
+.reveal-1{animation-delay:.05s}.reveal-2{animation-delay:.15s}.reveal-3{animation-delay:.25s}.reveal-4{animation-delay:.35s}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ============================ PUBLIC PAGE ============================ */
+header.site{position:sticky;top:0;z-index:50;background:rgba(245,244,241,.82);backdrop-filter:blur(16px) saturate(1.2);border-bottom:1px solid var(--border);box-shadow:0 8px 30px -18px rgba(22,20,17,.25)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:66px}
+.brand{font-family:var(--font-display);font-size:1.35rem;color:var(--ink);letter-spacing:.01em;text-decoration:none!important}
+.brand em{color:var(--accent);font-style:italic}
+.nav-links{display:flex;gap:26px;align-items:center}
+.nav-links a{font-size:.88rem;font-weight:600;color:var(--ink-dim);text-decoration:none!important}
+.nav-links a:hover{color:var(--ink)}
+@media(max-width:680px){.nav-links a:not(.nav-cta){display:none}}
+.nav-cta{background:linear-gradient(180deg,#35322d,#141210 65%);color:#fff!important;padding:9px 18px;border-radius:999px;box-shadow:inset 0 1px 0 rgba(255,255,255,.14), 0 1px 3px rgba(20,18,16,.22)}
+
+/* hero */
+.hero{padding:88px 0 72px;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;top:-160px;right:-120px;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);pointer-events:none}
+.hero-grid{display:grid;grid-template-columns:1.35fr .9fr;gap:60px;align-items:center;position:relative}
+@media(max-width:860px){.hero-grid{grid-template-columns:1fr;gap:40px}}
+.hero h1{font-family:var(--font-display);font-weight:400;font-size:clamp(2.7rem,6.2vw,4.7rem);line-height:1.04;letter-spacing:-.015em}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.hero .role{font-family:var(--font-mono);font-size:.85rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:18px 0 20px}
+.hero .tagline{font-size:1.08rem;color:var(--ink-dim);max-width:46ch}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:32px}
+.hero-photo{position:relative;justify-self:center}
+.avatar{width:280px;height:280px;border-radius:20px;object-fit:cover;object-position:50% 22%;border:6px solid var(--surface);box-shadow:14px 16px 0 -2px var(--ink), 16px 20px 44px rgba(26,26,26,.18);position:relative;z-index:2;transition:box-shadow .25s ease, transform .25s ease}
+.hero-photo:hover .avatar{transform:translate(-3px,-3px);box-shadow:19px 21px 0 -2px var(--ink), 20px 24px 48px rgba(26,26,26,.2)}
+.avatar-init{width:280px;height:280px;border-radius:20px;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:4.6rem;color:#fff;background:linear-gradient(160deg,var(--ink) 0%,#4a4036 100%);border:6px solid var(--surface);box-shadow:14px 16px 0 -2px var(--ink)}
+.hero-photo::after{content:none}
+.hero-photo{margin-right:12px;margin-bottom:14px}
+.photo-badge{position:absolute;bottom:-8px;left:-14px;z-index:3;background:linear-gradient(180deg,#35322d,#141210 70%);color:#fff;border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:8px 15px;font-family:var(--font-mono);font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;display:flex;align-items:center;gap:7px;box-shadow:var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,.12)}
+.photo-badge svg{width:13px;height:13px;color:#fdba74}
+.cert-thumb{width:56px;height:56px;border-radius:12px;object-fit:cover;border:1px solid var(--border);flex:0 0 auto;box-shadow:var(--shadow)}
+
+/* sections */
+section.block{padding:64px 0}
+section.block + section.block{border-top:1px solid rgba(22,20,17,.09);position:relative}
+section.block + section.block::before{content:"";position:absolute;top:-1px;left:50%;transform:translateX(-50%);width:120px;height:2px;background:var(--accent)}
+.sec-head{margin-bottom:38px;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.sec-head h2{font-family:var(--font-display);font-weight:400;font-size:clamp(1.9rem,3.4vw,2.6rem);line-height:1.1}
+.sec-head .count{font-family:var(--font-mono);font-size:.75rem;color:var(--ink-faint)}
+
+.about-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:48px;align-items:start}
+@media(max-width:820px){.about-grid{grid-template-columns:1fr}}
+.about-text p{color:var(--ink-dim);font-size:1.02rem;margin-bottom:16px;white-space:pre-line}
+.skill-cloud{display:flex;flex-wrap:wrap;gap:10px}
+.chip{font-family:var(--font-mono);font-size:.78rem;padding:7px 14px;border-radius:999px;background:var(--surface);border:1px solid var(--border);color:var(--ink-dim)}
+.chip.chip-green{background:var(--sage-soft);border-color:rgba(26,26,26,.28);color:#5c5954}
+
+/* projects */
+.proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:26px}
+.proj-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;transition:transform .2s ease, box-shadow .2s ease}
+.proj-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg);border-color:var(--border-strong)}
+.proj-thumb{height:168px;background:var(--surface-warm);display:flex;align-items:center;justify-content:center;overflow:hidden;border-bottom:1px solid var(--border)}
+.proj-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .35s ease}
+.proj-card:hover .proj-thumb img{transform:scale(1.04)}
+.proj-thumb .noimg{font-family:var(--font-display);font-size:2.4rem;color:var(--ink-faint)}
+.proj-body{padding:22px 22px 24px;display:flex;flex-direction:column;gap:10px;flex:1}
+.proj-body h3{font-size:1.12rem;font-weight:700}
+.proj-body p{font-size:.92rem;color:var(--ink-dim);flex:1}
+.proj-tech{display:flex;flex-wrap:wrap;gap:6px}
+.proj-tech span{font-family:var(--font-mono);font-size:.68rem;padding:4px 9px;border-radius:6px;background:var(--sage-soft);color:#5c5954}
+.proj-links{display:flex;gap:16px;margin-top:6px}
+.proj-links a{font-family:var(--font-mono);font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+
+/* certificates */
+.cert-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:18px}
+.cert-card{display:flex;gap:18px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:12px;padding:20px 22px;transition:box-shadow .2s ease}
+.cert-card:hover{box-shadow:var(--shadow)}
+.cert-ico{flex:0 0 auto;width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#f0efec,#dcdad6);display:flex;align-items:center;justify-content:center;color:var(--gold)}
+.cert-ico svg{width:22px;height:22px}
+.cert-card h3{font-size:1rem;font-weight:700;line-height:1.35}
+.cert-meta{font-size:.82rem;color:var(--ink-dim);margin-top:4px}
+.cert-meta .sep{margin:0 7px;color:var(--ink-faint)}
+.cert-id{font-family:var(--font-mono);font-size:.7rem;color:var(--ink-faint);margin-top:5px}
+.cert-verify{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600;margin-top:8px;display:inline-block}
+
+/* contact */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
+@media(max-width:820px){.contact-grid{grid-template-columns:1fr}}
+.contact-grid h2{font-family:var(--font-display);font-weight:400;font-size:clamp(2rem,4vw,3rem);line-height:1.1}
+.contact-grid h2 em{font-style:italic;color:var(--accent)}
+.contact-sub{color:var(--ink-dim);margin-top:14px;max-width:40ch}
+.contact-rows{display:flex;flex-direction:column;gap:6px}
+.contact-row{display:flex;gap:16px;align-items:center;padding:16px 18px;border:1px solid var(--border);border-radius:12px;background:var(--surface);transition:box-shadow .2s}
+.contact-row:hover{box-shadow:var(--shadow)}
+.contact-row .c-ico{width:40px;height:40px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.contact-row .c-ico svg{width:18px;height:18px}
+.contact-row .lbl{font-family:var(--font-mono);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
+.contact-row .val{font-weight:600;font-size:.95rem;word-break:break-word}
+.social-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+.social-row a{display:inline-flex;align-items:center;gap:8px;font-size:.85rem;font-weight:600;padding:9px 16px;border-radius:999px;border:1.5px solid var(--border-strong);color:var(--ink);text-decoration:none!important;transition:all .15s}
+.social-row a:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+.social-row a svg{width:15px;height:15px}
+
+footer.site{border-top:1px solid var(--border);padding:34px 0;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+footer.site p{font-size:.82rem;color:var(--ink-faint)}
+footer .mono-label{font-size:.64rem}
+
+.empty-note{padding:40px;text-align:center;border:1.5px dashed var(--border-strong);border-radius:var(--radius);color:var(--ink-faint);font-size:.92rem}
+
+.hero-stats{display:flex;margin-top:34px;border:1px solid var(--border);border-radius:16px;background:var(--surface);overflow:hidden;max-width:fit-content;box-shadow:var(--shadow)}
+.hstat{padding:14px 26px;text-align:center;border-right:1px solid var(--border)}
+.hstat:last-child{border-right:none}
+.hstat b{display:block;font-family:var(--font-display);font-size:1.8rem;line-height:1.15;font-weight:400}
+.hstat span{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
+.block-alt{background:var(--surface-warm)}
+.exp-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:52px;align-items:start}
+@media(max-width:860px){.exp-grid{grid-template-columns:1fr;gap:44px}}
+.subhead-label{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-dim);display:flex;align-items:center;gap:9px;margin-bottom:22px}
+.subhead-label::before{content:"";width:7px;height:7px;border-radius:50%}
+.subhead-terra::before{background:var(--accent)}
+.subhead-sage::before{background:var(--sage)}
+.timeline{position:relative;padding-left:30px}
+.timeline::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:var(--border)}
+.tl-item{position:relative;padding-bottom:34px}
+.tl-item:last-child{padding-bottom:0}
+.tl-item::before{content:"";position:absolute;left:-30px;top:5px;width:12px;height:12px;border-radius:50%;background:var(--bg);border:3px solid var(--accent)}
+.tl-period{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.05em;color:var(--accent);font-weight:500}
+.tl-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:7px 0 2px}
+.tl-head h3{font-size:1.14rem;font-weight:700}
+.tl-org{color:var(--ink-dim);font-weight:600;font-size:.94rem}
+.badge{font-family:var(--font-mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent-deep);font-weight:600}
+.tl-loc{display:flex;align-items:center;gap:6px;font-size:.8rem;color:var(--ink-faint);margin:3px 0 8px}
+.tl-loc svg{width:13px;height:13px}
+.tl-item p{color:var(--ink-dim);font-size:.95rem;max-width:64ch}
+.edu-stack{display:flex;flex-direction:column;gap:18px}
+.edu-card{background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--sage);border-radius:var(--radius);padding:22px 24px;position:relative}
+.edu-card .deg{font-weight:700;font-size:1.05rem;line-height:1.35;padding-right:56px}
+.edu-grade{position:absolute;top:20px;right:22px;font-family:var(--font-mono);font-size:.66rem;padding:4px 11px;border-radius:999px;background:var(--sage-soft);color:#5c5954;font-weight:600}
+.edu-card .inst{color:var(--accent);font-weight:600;font-size:.9rem;margin-top:3px}
+.edu-meta{font-family:var(--font-mono);font-size:.72rem;color:var(--ink-faint);margin-top:7px}
+.edu-card p.desc-edu{color:var(--ink-dim);font-size:.9rem;margin-top:10px}
+
+/* blink & slide effects */
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:.12}}
+@keyframes pulseDot{0%{transform:scale(1);box-shadow:0 0 0 0 rgba(26,26,26,.4)}70%{transform:scale(1.15);box-shadow:0 0 0 8px rgba(26,26,26,0)}100%{transform:scale(1);box-shadow:0 0 0 0 rgba(26,26,26,0)}}
+.avail{display:inline-flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:#5c5954;background:var(--sage-soft);border:1px solid rgba(26,26,26,.3);border-radius:999px;padding:7px 16px;margin:0 0 20px;font-weight:600}
+.avail .dot{width:9px;height:9px;border-radius:50%;background:#1a1a1a;flex:0 0 auto}
+body.fx-blink-on .avail .dot{animation:pulseDot 1.6s infinite}
+body.fx-blink-on .mono-label::before,body.fx-blink-on .subhead-label::before{animation:blink 1.6s steps(1) infinite}
+body.fx-blink-on .brand em{animation:blink 1.8s steps(1) infinite}
+.role.typing::after{content:"|";color:var(--accent);margin-left:3px;animation:blink .9s steps(1) infinite}
+.fx-up,.fx-left,.fx-right,.fx-zoom{opacity:0;transition:opacity .65s ease,transform .65s cubic-bezier(.2,.7,.3,1)}
+.fx-up{transform:translateY(30px)}
+.fx-left{transform:translateX(-42px)}
+.fx-right{transform:translateX(42px)}
+.fx-zoom{transform:scale(.93)}
+.in-view{opacity:1!important;transform:none!important}
+body.fx-off .fx-up,body.fx-off .fx-left,body.fx-off .fx-right,body.fx-off .fx-zoom{opacity:1;transform:none;transition:none}
+@media (prefers-reduced-motion:reduce){
+  .fx-up,.fx-left,.fx-right,.fx-zoom{opacity:1;transform:none;transition:none}
+  .role.typing::after{animation:none}
+  body.fx-blink-on .avail .dot,body.fx-blink-on .mono-label::before,body.fx-blink-on .subhead-label::before,body.fx-blink-on .brand em{animation:none}
+}
+.nav-links a:not(.nav-cta){position:relative}
+.nav-links a:not(.nav-cta)::after{content:"";position:absolute;left:0;bottom:-5px;height:2px;width:100%;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .28s ease}
+.nav-links a:not(.nav-cta):hover::after{transform:scaleX(1)}
+.check-row{display:flex;gap:10px;align-items:flex-start;font-weight:500;font-size:.88rem;margin:9px 0;cursor:pointer;color:var(--ink)}
+.check-row input[type=checkbox]{width:16px!important;height:16px;padding:0!important;border:none;accent-color:var(--accent);margin-top:2px;flex:0 0 auto}
+.fx-checks{background:var(--surface-warm);border:1px dashed var(--border-strong);border-radius:12px;padding:16px 18px 8px;margin-top:4px}
+
+/* ============================ ADMIN ============================ */
+.login-shell{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px;background:
+  radial-gradient(700px 400px at 85% -10%, var(--accent-soft), transparent 65%),
+  radial-gradient(600px 380px at -10% 110%, var(--sage-soft), transparent 65%), var(--bg)}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow-lg);padding:44px 40px;width:100%;max-width:400px}
+.login-card .mono-label{margin-bottom:14px}
+.login-card h1{font-family:var(--font-display);font-weight:400;font-size:2rem;margin-bottom:6px}
+.login-card .sub{color:var(--ink-dim);font-size:.9rem;margin-bottom:26px}
+.login-err{background:#fee2e2;color:#b91c1c;font-size:.82rem;padding:9px 14px;border-radius:8px;margin-bottom:16px;display:none}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:.8rem;font-weight:700;margin-bottom:7px;color:var(--ink)}
+.field label .opt{font-weight:400;color:var(--ink-faint)}
+input[type=text],input[type=password],input[type=email],input[type=url],input[type=month],textarea,select{
+  width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:var(--font-body);font-size:.92rem;background:var(--surface);color:var(--ink);transition:border-color .15s}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(194,65,12,.12)}
+textarea{resize:vertical;min-height:90px}
+.login-card .btn{width:100%;justify-content:center;margin-top:8px}
+.login-foot{margin-top:22px;text-align:center;font-size:.78rem;color:var(--ink-faint)}
+.login-foot a{color:var(--ink-dim)}
+
+.admin-shell{min-height:100vh;background:var(--bg)}
+.admin-top{background:linear-gradient(180deg,#2b2925,var(--ink) 70%);color:#fff;position:sticky;top:0;z-index:60;box-shadow:0 10px 30px -12px rgba(20,18,16,.5)}
+.admin-top .wrap{display:flex;align-items:center;justify-content:space-between;height:60px;gap:14px}
+.admin-top .brand{color:#fff;font-size:1.15rem}
+.admin-top .brand em{color:#fdba74}
+.admin-top-actions{display:flex;gap:10px;align-items:center}
+.admin-top .btn{padding:8px 16px;font-size:.8rem}
+.btn-amber{background:var(--accent);color:#fff}
+.btn-amber:hover{background:var(--accent-deep)}
+.btn-outline-w{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.3)}
+.btn-outline-w:hover{background:rgba(255,255,255,.1)}
+.admin-tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:60px;z-index:55;overflow-x:auto}
+.admin-tab{flex:0 0 auto;background:none;border:none;border-bottom:2.5px solid transparent;padding:15px 20px;font-size:.88rem;font-weight:600;color:var(--ink-dim);white-space:nowrap}
+.admin-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.admin-tab .n{font-family:var(--font-mono);font-size:.68rem;background:var(--surface-warm);border-radius:999px;padding:1px 8px;margin-left:6px;color:var(--ink-dim)}
+.admin-body{padding:40px 0 80px;max-width:980px}
+.admin-panel h2{font-family:var(--font-display);font-weight:400;font-size:1.9rem;margin-bottom:6px}
+.admin-panel .desc{color:var(--ink-dim);font-size:.92rem;margin-bottom:26px;max-width:64ch}
+.panel-head-row{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:20px;flex-wrap:wrap}
+
+.sb-status-badge{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;padding:5px 12px;border-radius:999px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.sb-status-connected{background:#dcfce7;color:#15803d;border:1px solid #bbf7d0}
+.sb-status-disconnected{background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5}
+
+.item-table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;font-size:.9rem}
+.item-table thead th{text-align:left;font-family:var(--font-mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);padding:13px 16px;background:var(--surface-warm);border-bottom:1px solid var(--border)}
+.item-table td{padding:14px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
+.item-table tr:last-child td{border-bottom:none}
+.item-table tr:hover td{background:#fdfbf9}
+.item-table .t-title{font-weight:700}
+.item-table .t-sub{font-size:.8rem;color:var(--ink-dim)}
+.item-table .row-actions{display:flex;gap:8px;justify-content:flex-end}
+.icon-btn{width:34px;height:34px;border-radius:99px;border:1.5px solid var(--border);background:var(--surface);display:inline-flex;align-items:center;justify-content:center;color:var(--ink-dim);transition:all .15s}
+.icon-btn:hover{border-color:var(--ink);color:var(--ink)}
+.icon-btn.del:hover{background:#fee2e2;border-color:#fca5a5;color:#b91c1c}
+.icon-btn svg{width:15px;height:15px}
+.table-scroll{overflow-x:auto;border-radius:var(--radius)}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+.form-grid .full{grid-column:1/-1}
+@media(max-width:640px){.form-grid{grid-template-columns:1fr}}
+
+.adm-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px;margin-bottom:22px}
+.adm-card h3{font-size:1.02rem;font-weight:700;margin-bottom:4px}
+.adm-card .hint{font-size:.8rem;color:var(--ink-faint);margin-bottom:18px}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(31,26,20,.5);backdrop-filter:blur(3px);z-index:100;display:none;align-items:flex-start;justify-content:center;padding:30px 18px;overflow-y:auto}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:18px;box-shadow:var(--shadow-lg);width:100%;max-width:620px;margin:auto 0;animation:fadeUp .25s ease both}
+.modal-head{display:flex;justify-content:space-between;align-items:center;padding:22px 26px 0}
+.modal-head h3{font-family:var(--font-display);font-weight:400;font-size:1.5rem}
+.modal-close{background:none;border:none;font-size:1.5rem;line-height:1;color:var(--ink-faint);padding:4px}
+.modal-close:hover{color:var(--ink)}
+.modal-body{padding:20px 26px 26px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:22px}
+
+.img-preview{width:100%;max-height:150px;object-fit:cover;border-radius:10px;border:1px solid var(--border);margin-bottom:10px;display:none}
+.social-editor .social-row-edit{display:grid;grid-template-columns:110px 1fr 40px;gap:10px;margin-bottom:10px;align-items:center}
+.file-note{font-size:.74rem;color:var(--ink-faint);margin-top:6px}
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(80px);background:linear-gradient(180deg,#35322d,#141210 70%);color:#fff;padding:12px 22px;border-radius:999px;font-size:.88rem;font-weight:600;box-shadow:var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,.12);z-index:200;transition:transform .3s ease;opacity:0}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.data-actions{display:flex;gap:12px;flex-wrap:wrap}
+kbd{font-family:var(--font-mono);font-size:.75em;background:var(--surface-warm);border:1px solid var(--border);border-radius:5px;padding:1px 6px}
+</style>
+</head>
+<body>
+
+<!-- ==================== PUBLIC SITE ==================== -->
+<div id="publicView">
+  <header class="site">
+    <div class="wrap nav">
+      <a class="brand" href="#top"><em>M</em>oghith&nbsp;B&nbsp;K</a>
+      <nav class="nav-links">
+        <a href="#about">About</a>
+        <a href="#experience">Experience</a>
+        <a href="#projects">Projects</a>
+        <a href="#certificates">Certificates</a>
+        <a href="#contact">Contact</a>
+        <a href="admin.html">Admin</a>
+        <a class="nav-cta" href="#contact">Get in touch</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- HERO -->
+    <div class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <div class="mono-label reveal reveal-1">Portfolio</div>
+          <h1 class="reveal reveal-1" id="heroName" style="margin-top:14px"></h1>
+          <div class="avail reveal reveal-1" id="availBadge"><span class="dot"></span>Available for opportunities</div>
+          <div class="role reveal reveal-2" id="heroRole"></div>
+          <p class="tagline reveal reveal-2" id="heroTagline"></p>
+          <div class="hero-actions reveal reveal-3">
+            <a class="btn btn-accent" href="#projects">View my work
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a class="btn btn-ghost" href="#contact">Contact me</a>
+            <a class="btn btn-ghost" id="resumeBtn" style="display:none" target="_blank" rel="noopener">Résumé</a>
+          </div>
+          <div class="hero-stats reveal reveal-3" id="heroStats"></div>
+          <div class="social-row reveal reveal-4" id="heroSocials" style="margin-top:26px"></div>
+        </div>
+        <div class="hero-photo reveal reveal-2" id="heroPhoto"></div>
+      </div>
+    </div>
+
+    <!-- ABOUT -->
+    <section class="block" id="about">
+      <div class="wrap">
+        <div class="sec-head fx-up">
+          <div><div class="mono-label">01 — About</div><h2 style="margin-top:10px">A little about me</h2></div>
+        </div>
+        <div class="about-grid">
+          <div class="about-text fx-up" id="aboutText"></div>
+          <div>
+            <div class="mono-label" style="margin-bottom:16px"><span style="display:none"></span>Skills & tools</div>
+            <div class="skill-cloud fx-zoom" id="skillCloud"></div>
+            <div class="adm-card" style="margin-top:26px;background:var(--surface-warm);border-style:dashed">
+              <div class="mono-label" style="margin-bottom:10px">Location</div>
+              <p id="aboutLocation" style="font-weight:600"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EXPERIENCE -->
+    <section class="block block-alt" id="experience">
+      <div class="wrap">
+        <div class="sec-head fx-up">
+          <div><div class="mono-label">02 — Journey</div><h2 style="margin-top:10px">Experience and education</h2></div>
+          <span class="count" id="expCount"></span>
+        </div>
+        <div class="exp-grid">
+          <div>
+            <div class="subhead-label subhead-terra">Work experience</div>
+            <div class="timeline" id="expTimeline"></div>
+          </div>
+          <div>
+            <div class="subhead-label subhead-sage">Education</div>
+            <div class="edu-stack" id="eduStack"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROJECTS -->
+    <section class="block" id="projects">
+      <div class="wrap">
+        <div class="sec-head fx-up">
+          <div><div class="mono-label">03 — Work</div><h2 style="margin-top:10px">Projects</h2></div>
+          <span class="count" id="projCount"></span>
+        </div>
+        <div class="proj-grid" id="projGrid"></div>
+      </div>
+    </section>
+
+    <!-- CERTIFICATES -->
+    <section class="block block-alt" id="certificates">
+      <div class="wrap">
+        <div class="sec-head fx-up">
+          <div><div class="mono-label">04 — Credentials</div><h2 style="margin-top:10px">Certificates</h2></div>
+          <span class="count" id="certCount"></span>
+        </div>
+        <div class="cert-list" id="certList"></div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="block" id="contact">
+      <div class="wrap contact-grid">
+        <div>
+          <div class="mono-label">05 — Contact</div>
+          <h2 style="margin-top:12px">Let&rsquo;s build<br>something <em style="font-style:italic;color:var(--accent)">together</em>.</h2>
+          <p class="contact-sub" id="contactSub">Have a project in mind, a question, or just want to say hello? My inbox is always open.</p>
+          <div class="social-row" id="contactSocials"></div>
+        </div>
+        <div class="contact-rows" id="contactRows"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site">
+    <div class="wrap" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px">
+      <p id="footLine"></p>
+      <div style="display:flex;align-items:center;gap:16px">
+        <a href="admin.html" style="font-family:var(--font-mono);font-size:.7rem;color:var(--ink-dim)">⚙ Admin Console</a>
+        <span class="mono-label" id="liveStatus">Powered by Supabase Cloud</span>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- ==================== ADMIN LOGIN ==================== -->
+<div id="loginView" style="display:none">
+  <div class="login-shell">
+    <div class="login-card reveal">
+      <div class="mono-label">Restricted area</div>
+      <h1>Admin console</h1>
+      <p class="sub">Sign in to manage your portfolio content.</p>
+      <div class="login-err" id="loginErr">Incorrect password. Please try again.</div>
+      <form id="loginForm">
+        <div class="field">
+          <label for="pw">Password</label>
+          <input type="password" id="pw" autocomplete="current-password" placeholder="Enter admin password" autofocus>
+        </div>
+        <button class="btn btn-primary" type="submit">Unlock console</button>
+      </form>
+      <div class="login-foot"><a href="./">← Back to portfolio</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ADMIN CONSOLE ==================== -->
+<div id="adminView" style="display:none">
+  <div class="admin-shell">
+    <div class="admin-top">
+      <div class="wrap">
+        <span class="brand"><em>◆</em> Portfolio Admin</span>
+        <div class="admin-top-actions">
+          <span class="sb-status-badge sb-status-disconnected" id="topSbBadge">Supabase Disconnected</span>
+          <a class="btn btn-outline-w btn-sm" href="./" id="viewSiteBtn">View site</a>
+          <button class="btn btn-outline-w btn-sm" id="logoutBtn">Log out</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-tabs wrap" id="adminTabs">
+      <button class="admin-tab active" data-tab="profile">Profile</button>
+      <button class="admin-tab" data-tab="experience">Experience <span class="n" id="tabExpN">0</span></button>
+      <button class="admin-tab" data-tab="education">Education <span class="n" id="tabEduN">0</span></button>
+      <button class="admin-tab" data-tab="projects">Projects <span class="n" id="tabProjN">0</span></button>
+      <button class="admin-tab" data-tab="certificates">Certificates <span class="n" id="tabCertN">0</span></button>
+      <button class="admin-tab" data-tab="contact">Contact</button>
+      <button class="admin-tab" data-tab="supabase">⚡ Supabase Config</button>
+      <button class="admin-tab" data-tab="data">Backup & data</button>
+    </div>
+
+    <div class="wrap admin-body">
+
+      <!-- PROFILE -->
+      <div class="admin-panel" id="panel-profile">
+        <h2>Your profile</h2>
+        <p class="desc">This is what visitors see first — your name, role, photo, story and skills. Changes are synced with Supabase immediately.</p>
+        <form id="profileForm" class="adm-card">
+          <div class="form-grid">
+            <div class="field"><label>Full name</label><input type="text" id="pf_name" required></div>
+            <div class="field"><label>Role / title <span class="opt">(e.g. Full-Stack Developer | UI Designer)</span></label><input type="text" id="pf_role"></div>
+            <div class="field full"><label>Tagline <span class="opt">(one punchy sentence under your name)</span></label><input type="text" id="pf_tagline"></div>
+            <div class="field full"><label>About / bio</label><textarea id="pf_bio" rows="5" placeholder="Tell your story — line breaks are kept."></textarea></div>
+            <div class="field full"><label>Photo URL or file path <span class="opt">(or upload below)</span></label><input type="text" id="pf_photo" placeholder="https://... or my-photo.jpg"></div>
+            <div class="field full">
+              <label>Upload photo</label>
+              <input type="file" id="pf_photoFile" accept="image/*">
+              <img class="img-preview" id="pf_photoPrev" alt="">
+            </div>
+            <div class="field full"><label>Skills <span class="opt">(comma separated)</span></label><input type="text" id="pf_skills" placeholder="Python, React, SQL, ..."></div>
+            <div class="field"><label>Location</label><input type="text" id="pf_location" placeholder="Chennai, India"></div>
+            <div class="field"><label>Résumé / CV link <span class="opt">(optional)</span></label><input type="url" id="pf_resume" placeholder="https://drive.google.com/..."></div>
+            <div class="field full fx-checks">
+              <label style="margin-bottom:4px">Animations and effects</label>
+              <label class="check-row"><input type="checkbox" id="pf_fxType"> Typewriter role — types and rotates roles (separate them with |)</label>
+              <label class="check-row"><input type="checkbox" id="pf_fxSlide"> Slide-in reveals while scrolling</label>
+              <label class="check-row"><input type="checkbox" id="pf_fxBlink"> Blinking accents (status dot, section labels)</label>
+            </div>
+          </div>
+          <div class="modal-actions"><button class="btn btn-accent" type="submit">Save profile to Supabase</button></div>
+        </form>
+      </div>
+
+      <!-- EXPERIENCE -->
+      <div class="admin-panel" id="panel-experience" style="display:none">
+        <h2>Experience</h2>
+        <p class="desc">Internships, jobs and freelance work — stored in Supabase database.</p>
+        <div class="panel-head-row">
+          <span class="mono-label"><span style="display:none"></span>Roles and positions</span>
+          <button class="btn btn-accent btn-sm" id="addExpBtn">+ Add experience</button>
+        </div>
+        <div class="table-scroll"><table class="item-table" id="expTable"></table></div>
+      </div>
+
+      <!-- EDUCATION -->
+      <div class="admin-panel" id="panel-education" style="display:none">
+        <h2>Education</h2>
+        <p class="desc">Degrees, schooling and courses — stored in Supabase database.</p>
+        <div class="panel-head-row">
+          <span class="mono-label"><span style="display:none"></span>Academic background</span>
+          <button class="btn btn-accent btn-sm" id="addEduBtn">+ Add education</button>
+        </div>
+        <div class="table-scroll"><table class="item-table" id="eduTable"></table></div>
+      </div>
+
+      <!-- PROJECTS -->
+      <div class="admin-panel" id="panel-projects" style="display:none">
+        <h2>Projects</h2>
+        <p class="desc">Add, edit or remove projects synced with Supabase.</p>
+        <div class="panel-head-row">
+          <span class="mono-label"><span style="display:none"></span>Projects Grid</span>
+          <button class="btn btn-accent btn-sm" id="addProjBtn">+ Add project</button>
+        </div>
+        <div class="table-scroll"><table class="item-table" id="projTable"></table></div>
+      </div>
+
+      <!-- CERTIFICATES -->
+      <div class="admin-panel" id="panel-certificates" style="display:none">
+        <h2>Certificates</h2>
+        <p class="desc">Show off courses and certifications stored in Supabase.</p>
+        <div class="panel-head-row">
+          <span class="mono-label"><span style="display:none"></span>Verified credentials</span>
+          <button class="btn btn-accent btn-sm" id="addCertBtn">+ Add certificate</button>
+        </div>
+        <div class="table-scroll"><table class="item-table" id="certTable"></table></div>
+      </div>
+
+      <!-- CONTACT -->
+      <div class="admin-panel" id="panel-contact" style="display:none">
+        <h2>Contact details</h2>
+        <p class="desc">How people can reach you — email, phone, location and social profiles.</p>
+        <form id="contactForm" class="adm-card">
+          <div class="form-grid">
+            <div class="field"><label>Email</label><input type="email" id="cf_email" placeholder="you@example.com"></div>
+            <div class="field"><label>Phone</label><input type="text" id="cf_phone" placeholder="+91 ..."></div>
+            <div class="field full"><label>Location</label><input type="text" id="cf_location"></div>
+            <div class="field full"><label>Contact intro line</label><input type="text" id="cf_sub" placeholder="Have a project in mind? ..."></div>
+          </div>
+          <div class="modal-actions"><button class="btn btn-accent" type="submit">Save contact to Supabase</button></div>
+        </form>
+        <div class="adm-card social-editor">
+          <h3>Social links</h3>
+          <p class="hint">Each link shows as a button (e.g. GitHub → https://github.com/you).</p>
+          <div id="socialRows"></div>
+          <button class="btn btn-ghost btn-sm" type="button" id="addSocialBtn">+ Add social link</button>
+          <div class="modal-actions"><button class="btn btn-accent" type="button" id="saveSocialsBtn">Save social links</button></div>
+        </div>
+      </div>
+
+      <!-- SUPABASE CONFIG -->
+      <div class="admin-panel" id="panel-supabase" style="display:none">
+        <h2>⚡ Supabase Connection Settings</h2>
+        <p class="desc">Connect your portfolio directly to your cloud Supabase database for persistent remote data storage.</p>
+        <form id="supabaseConfigForm" class="adm-card">
+          <div class="form-grid">
+            <div class="field full">
+              <label>Supabase Project URL</label>
+              <input type="url" id="sb_url_input" placeholder="https://your-project-ref.supabase.co" required>
+            </div>
+            <div class="field full">
+              <label>Supabase Anon / Public Key</label>
+              <input type="text" id="sb_key_input" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6..." required>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button class="btn btn-accent" type="submit">Connect & Sync Supabase</button>
+          </div>
+        </form>
+
+        <div class="adm-card">
+          <h3>Quick Supabase Setup Instructions</h3>
+          <p class="hint">1. Open your <a href="https://supabase.com" target="_blank" rel="noopener">Supabase Dashboard</a> -> Select your project -> <b>SQL Editor</b>.</p>
+          <p class="hint">2. Copy and paste the contents of <code>schema.sql</code> into the query editor and click <b>Run</b>.</p>
+          <p class="hint">3. Go to <b>Project Settings -> API</b>, copy your <b>Project URL</b> and <b>anon / public key</b>, and paste them into the form above.</p>
+        </div>
+      </div>
+
+      <!-- DATA -->
+      <div class="admin-panel" id="panel-data" style="display:none">
+        <h2>Backup & data</h2>
+        <p class="desc">Export a JSON backup of your current portfolio data.</p>
+        <div class="adm-card">
+          <h3>Export / import</h3>
+          <div class="data-actions">
+            <button class="btn btn-primary btn-sm" id="exportBtn">Export backup (.json)</button>
+            <button class="btn btn-ghost btn-sm" id="importBtn">Import backup</button>
+            <input type="file" id="importFile" accept=".json,application/json" style="display:none">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL ==================== -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-head"><h3 id="modalTitle">Edit</h3><button class="modal-close" id="modalClose" aria-label="Close">×</button></div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+const Core = window.PortfolioCore;
+const SESSION_KEY = "pf_admin_ok";
+const ADMIN_PW = "2005";
+const DEFAULTS = Core.DEFAULTS;
+const esc = Core.esc;
+const uid = Core.uid;
+let DB = Core.getDB();
+
+function syncDB() { DB = Core.getDB(); }
+
+function updateSbBadge(connected) {
+  const badge = document.getElementById("topSbBadge");
+  if (!badge) return;
+  if (connected) {
+    badge.textContent = "✓ Supabase Connected";
+    badge.className = "sb-status-badge sb-status-connected";
+  } else {
+    badge.textContent = "Supabase Disconnected";
+    badge.className = "sb-status-badge sb-status-disconnected";
+  }
+}
+
+function getSavedCredentials() { return Core.getCredentials(); }
+
+function initSupabase() {
+  const ok = Core.initSupabase();
+  updateSbBadge(ok);
+  return ok;
+}
+
+async function loadFromSupabase() {
+  const result = await Core.loadFromSupabase();
+  syncDB();
+  updateSbBadge(result.ok);
+  if (!result.ok) console.warn("Load failed:", result.error);
+}
+
+async function persistToSupabase(table, payload, action) {
+  try {
+    await Core.persist(table, payload, action);
+    return true;
+  } catch (err) {
+    console.error("Supabase persist error:", err);
+    toast("Database error: " + (err.message || "Failed"));
+    return false;
+  }
+}
+
+/* ================= BOOTSTRAP & NAVIGATION ================= */
+async function boot() {
+  await loadFromSupabase();
+  renderPublic();
+  renderAdmin();
+  handleRouting();
+  Core.subscribeRealtime(async function () {
+    await loadFromSupabase();
+    renderPublic();
+    renderAdmin();
+  });
+}
+
+window.addEventListener("hashchange", handleRouting);
+
+function handleRouting() {
+  const h = window.location.hash;
+  const p = window.location.pathname;
+  const isAuth = sessionStorage.getItem(SESSION_KEY) === "1";
+  if (h === "#admin" || h === "/admin" || p === "/admin" || p.endsWith("/admin")) {
+    document.getElementById("publicView").style.display = "none";
+    if (isAuth) {
+      document.getElementById("loginView").style.display = "none";
+      document.getElementById("adminView").style.display = "block";
+      renderAdmin();
+    } else {
+      document.getElementById("adminView").style.display = "none";
+      document.getElementById("loginView").style.display = "block";
+    }
+  } else {
+    document.getElementById("loginView").style.display = "none";
+    document.getElementById("adminView").style.display = "none";
+    document.getElementById("publicView").style.display = "block";
+  }
+}
+
+// Login Handler
+document.getElementById("loginForm").addEventListener("submit", e => {
+  e.preventDefault();
+  if (document.getElementById("pw").value === ADMIN_PW) {
+    sessionStorage.setItem(SESSION_KEY, "1");
+    document.getElementById("loginErr").style.display = "none";
+    document.getElementById("pw").value = "";
+    handleRouting();
+  } else {
+    document.getElementById("loginErr").style.display = "block";
+  }
+});
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  sessionStorage.removeItem(SESSION_KEY);
+  window.location.hash = "";
+});
+
+// Admin Tabs
+document.getElementById("adminTabs").addEventListener("click", e => {
+  const btn = e.target.closest("button[data-tab]");
+  if (!btn) return;
+  document.querySelectorAll("#adminTabs .admin-tab").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  const target = btn.dataset.tab;
+  document.querySelectorAll(".admin-panel").forEach(p => p.style.display = "none");
+  const sel = document.getElementById("panel-" + target);
+  if (sel) sel.style.display = "block";
+});
+
+// Toast notification
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 3000);
+}
+
+/* ================= RENDER PUBLIC SITE ================= */
+function renderPublic() {
+  const pf = DB.profile || DEFAULTS.profile;
+  const fx = pf.effects || { typewriter: true, slides: true, blink: true };
+
+  document.body.classList.toggle("fx-blink-on", !!fx.blink);
+  document.body.classList.toggle("fx-off", !fx.slides);
+
+  document.getElementById("heroName").innerHTML = esc(pf.name || "Moghith B K");
+  
+  const roleEl = document.getElementById("heroRole");
+  roleEl.textContent = pf.role || "";
+  roleEl.classList.toggle("typing", !!fx.typewriter);
+
+  document.getElementById("heroTagline").textContent = pf.tagline || "";
+
+  // Photo
+  const photoContainer = document.getElementById("heroPhoto");
+  if (pf.photo) {
+    photoContainer.innerHTML = '<img class="avatar" src="' + esc(pf.photo) + '" alt="' + esc(pf.name) + '"><div class="photo-badge"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15 8L22 9L17 14L18 21L12 17.5L6 21L7 14L2 9L9 8L12 2Z"/></svg>Available for hire</div>';
+  } else {
+    const initials = (pf.name || "M B").split(" ").map(n=>n[0]).join("");
+    photoContainer.innerHTML = '<div class="avatar-init">' + esc(initials) + '</div><div class="photo-badge"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15 8L22 9L17 14L18 21L12 17.5L6 21L7 14L2 9L9 8L12 2Z"/></svg>Available for hire</div>';
+  }
+
+  // Resume
+  const resBtn = document.getElementById("resumeBtn");
+  if (pf.resume) {
+    resBtn.href = pf.resume;
+    resBtn.style.display = "inline-flex";
+  } else {
+    resBtn.style.display = "none";
+  }
+
+  // About
+  document.getElementById("aboutText").innerHTML = (pf.bio || "").split("\n").map(p => "<p>" + esc(p) + "</p>").join("");
+  document.getElementById("aboutLocation").textContent = pf.location || "Chennai, India";
+
+  // Skills
+  const cloud = document.getElementById("skillCloud");
+  const skills = Array.isArray(pf.skills) ? pf.skills : String(pf.skills || "").split(",");
+  cloud.innerHTML = skills.map((s, i) => '<span class="chip ' + (i % 2 === 0 ? "chip-green" : "") + '">' + esc(s.trim()) + "</span>").join("");
+
+  // Experience
+  const expBox = document.getElementById("expTimeline");
+  const expList = DB.experience || [];
+  document.getElementById("expCount").textContent = expList.length + " roles";
+  if (!expList.length) {
+    expBox.innerHTML = '<div class="empty-note">No experience entries yet.</div>';
+  } else {
+    expBox.innerHTML = expList.map(x =>
+      '<div class="tl-item">' +
+      '<div class="tl-period">' + esc(x.period || "") + '</div>' +
+      '<div class="tl-head"><h3>' + esc(x.role) + '</h3><span class="tl-org">@ ' + esc(x.org || "") + '</span>' +
+      (x.type ? '<span class="badge">' + esc(x.type) + '</span>' : '') + '</div>' +
+      (x.location ? '<div class="tl-loc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-8-4.5-8-11.8A8 8 0 0112 2a8 8 0 018 7.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="9" r="3"/></svg>' + esc(x.location) + '</div>' : '') +
+      '<p>' + esc(x.desc || x.description || "") + '</p></div>'
+    ).join("");
+  }
+
+  // Education
+  const eduBox = document.getElementById("eduStack");
+  const eduList = DB.education || [];
+  if (!eduList.length) {
+    eduBox.innerHTML = '<div class="empty-note">No education entries yet.</div>';
+  } else {
+    eduBox.innerHTML = eduList.map(x =>
+      '<div class="edu-card">' +
+      '<div class="deg">' + esc(x.degree) + '</div>' +
+      (x.grade ? '<span class="edu-grade">' + esc(x.grade) + '</span>' : '') +
+      '<div class="inst">' + esc(x.institution || "") + '</div>' +
+      '<div class="edu-meta">' + esc(x.period || "") + '</div>' +
+      (x.desc || x.description ? '<p class="desc-edu">' + esc(x.desc || x.description) + '</p>' : '') + '</div>'
+    ).join("");
+  }
+
+  // Projects
+  const projBox = document.getElementById("projGrid");
+  const projList = DB.projects || [];
+  document.getElementById("projCount").textContent = projList.length + " projects";
+  if (!projList.length) {
+    projBox.innerHTML = '<div class="empty-note">No projects showcased yet.</div>';
+  } else {
+    projBox.innerHTML = projList.map(p =>
+      '<div class="proj-card">' +
+      '<div class="proj-thumb">' + (p.image ? '<img src="' + esc(p.image) + '" alt="' + esc(p.title) + '">' : '<div class="noimg">✦</div>') + '</div>' +
+      '<div class="proj-body">' +
+      '<h3>' + esc(p.title) + '</h3>' +
+      '<p>' + esc(p.desc || p.description || "") + '</p>' +
+      '<div class="proj-tech">' + (Array.isArray(p.tech) ? p.tech : []).map(t => '<span>' + esc(t) + '</span>').join("") + '</div>' +
+      '<div class="proj-links">' +
+      (p.link ? '<a href="' + esc(p.link) + '" target="_blank" rel="noopener">Live Demo →</a>' : '') +
+      (p.repo ? '<a href="' + esc(p.repo) + '" target="_blank" rel="noopener">Code</a>' : '') +
+      '</div></div></div>'
+    ).join("");
+  }
+
+  // Certificates
+  const certBox = document.getElementById("certList");
+  const certList = DB.certificates || [];
+  document.getElementById("certCount").textContent = certList.length + " certificates";
+  if (!certList.length) {
+    certBox.innerHTML = '<div class="empty-note">No certificates added yet.</div>';
+  } else {
+    certBox.innerHTML = certList.map(c =>
+      '<div class="cert-card">' +
+      (c.image ? '<img class="cert-thumb" src="' + esc(c.image) + '" alt="">' : '<div class="cert-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15l-2 5l2-1.5L14 20l-2-5z"/><circle cx="12" cy="9" r="6"/></svg></div>') +
+      '<div><h3>' + esc(c.title) + '</h3>' +
+      '<div class="cert-meta">' + esc(c.issuer || "") + '<span class="sep">•</span>' + esc(c.date || "") + '</div>' +
+      (c.credId || c.cred_id ? '<div class="cert-id">ID: ' + esc(c.credId || c.cred_id) + '</div>' : '') +
+      (c.link ? '<a class="cert-verify" href="' + esc(c.link) + '" target="_blank" rel="noopener">Verify credential →</a>' : '') +
+      '</div></div>'
+    ).join("");
+  }
+
+  // Contact & Socials
+  const ct = DB.contact || DEFAULTS.contact;
+  document.getElementById("contactSub").textContent = ct.sub || "My inbox is always open.";
+  
+  const cRows = document.getElementById("contactRows");
+  cRows.innerHTML =
+    (ct.email ? '<div class="contact-row"><div class="c-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg></div><div><div class="lbl">Email</div><div class="val"><a href="mailto:' + esc(ct.email) + '">' + esc(ct.email) + '</a></div></div></div>' : '') +
+    (ct.phone ? '<div class="contact-row"><div class="c-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg></div><div><div class="lbl">Phone</div><div class="val">' + esc(ct.phone) + '</div></div></div>' : '') +
+    (ct.location ? '<div class="contact-row"><div class="c-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-8-4.5-8-11.8A8 8 0 0112 2a8 8 0 018 7.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="9" r="3"/></svg></div><div><div class="lbl">Location</div><div class="val">' + esc(ct.location) + '</div></div></div>' : '');
+
+  const sBox = document.getElementById("contactSocials");
+  const heroSocials = document.getElementById("heroSocials");
+  const socials = ct.socials || [];
+  const socialsHTML = socials.map(s => '<a href="' + esc(s.url) + '" target="_blank" rel="noopener">' + esc(s.label) + '</a>').join("");
+  sBox.innerHTML = socialsHTML;
+  heroSocials.innerHTML = socialsHTML;
+
+  document.getElementById("footLine").textContent = '© ' + new Date().getFullYear() + ' ' + (pf.name || "Moghith B K") + '. All rights reserved.';
+  const live = document.getElementById("liveStatus");
+  if (live) live.textContent = Core.isConnected() ? "Live • Supabase connected" : "Powered by Supabase Cloud";
+}
+
+/* ================= RENDER ADMIN FORM & TABLES ================= */
+function renderAdmin() {
+  fillProfileForm();
+  fillContactForm();
+  fillSupabaseConfigForm();
+  renderExpTable();
+  renderEduTable();
+  renderProjTable();
+  renderCertTable();
+
+  document.getElementById("tabExpN").textContent = (DB.experience || []).length;
+  document.getElementById("tabEduN").textContent = (DB.education || []).length;
+  document.getElementById("tabProjN").textContent = (DB.projects || []).length;
+  document.getElementById("tabCertN").textContent = (DB.certificates || []).length;
+}
+
+function fillProfileForm() {
+  const p = DB.profile || DEFAULTS.profile;
+  document.getElementById("pf_name").value = p.name || "";
+  document.getElementById("pf_role").value = p.role || "";
+  document.getElementById("pf_tagline").value = p.tagline || "";
+  document.getElementById("pf_bio").value = p.bio || "";
+  document.getElementById("pf_photo").value = p.photo || "";
+  document.getElementById("pf_skills").value = Array.isArray(p.skills) ? p.skills.join(", ") : (p.skills || "");
+  document.getElementById("pf_location").value = p.location || "";
+  document.getElementById("pf_resume").value = p.resume || "";
+
+  const fx = p.effects || { typewriter: true, slides: true, blink: true };
+  document.getElementById("pf_fxType").checked = !!fx.typewriter;
+  document.getElementById("pf_fxSlide").checked = !!fx.slides;
+  document.getElementById("pf_fxBlink").checked = !!fx.blink;
+
+  showImgPrev("pf_photoPrev", p.photo);
+}
+
+function fillSupabaseConfigForm() {
+  const creds = getSavedCredentials();
+  document.getElementById("sb_url_input").value = creds.url || "";
+  document.getElementById("sb_key_input").value = creds.key || "";
+}
+
+function showImgPrev(id, src) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (src) { el.src = src; el.style.display = "block"; } else { el.style.display = "none"; }
+}
+
+// Profile Submit
+document.getElementById("profileForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const pf = {
+    id: "main",
+    name: document.getElementById("pf_name").value.trim(),
+    role: document.getElementById("pf_role").value.trim(),
+    tagline: document.getElementById("pf_tagline").value.trim(),
+    bio: document.getElementById("pf_bio").value.trim(),
+    photo: document.getElementById("pf_photo").value.trim(),
+    skills: document.getElementById("pf_skills").value.split(",").map(s=>s.trim()).filter(Boolean),
+    location: document.getElementById("pf_location").value.trim(),
+    resume: document.getElementById("pf_resume").value.trim(),
+    effects: {
+      typewriter: document.getElementById("pf_fxType").checked,
+      slides: document.getElementById("pf_fxSlide").checked,
+      blink: document.getElementById("pf_fxBlink").checked
+    }
+  };
+  DB.profile = pf;
+  toast("Saving profile to Supabase...");
+  await persistToSupabase("profiles", pf);
+  renderPublic();
+  toast("Profile saved to Supabase ✓");
+});
+
+// Supabase Config Submit
+document.getElementById("supabaseConfigForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const url = document.getElementById("sb_url_input").value.trim();
+  const key = document.getElementById("sb_key_input").value.trim();
+  localStorage.setItem(Core.CONFIG_KEY, JSON.stringify({ url, key }));
+  toast("Testing Supabase connection...");
+  const ok = initSupabase();
+  if (ok) {
+    await loadFromSupabase();
+    renderAdmin();
+    renderPublic();
+    toast("Connected & synced with Supabase ✓");
+  } else {
+    toast("Connection failed. Check URL & Key.");
+  }
+});
+
+/* ---- Projects Admin ---- */
+function renderProjTable() {
+  const t = document.getElementById("projTable");
+  const projs = DB.projects || [];
+  if (!projs.length) { t.innerHTML = "<tbody><tr><td class='empty-note' style='border:none'>No projects. Click + Add project.</td></tr></tbody>"; return; }
+  t.innerHTML = "<thead><tr><th>Title</th><th>Tech Stack</th><th style='text-align:right'>Actions</th></tr></thead><tbody>" +
+    projs.map(x =>
+      "<tr><td><div class='t-title'>" + esc(x.title) + "</div></td>" +
+      "<td class='t-sub'>" + (Array.isArray(x.tech) ? x.tech.join(", ") : "") + "</td>" +
+      "<td><div class='row-actions'>" +
+      "<button class='icon-btn' data-act='edit-p' data-id='" + x.id + "' title='Edit'>✎</button>" +
+      "<button class='icon-btn del' data-act='del-p' data-id='" + x.id + "' title='Delete'>✕</button>" +
+      "</div></td></tr>").join("") + "</tbody>";
+}
+
+document.getElementById("projTable").addEventListener("click", async e => {
+  const b = e.target.closest("button[data-act]");
+  if (!b) return;
+  if (b.dataset.act === "edit-p") openProjModal(DB.projects.find(x => x.id === b.dataset.id));
+  else if (b.dataset.act === "del-p" && confirm("Delete project?")) {
+    const id = b.dataset.id;
+    DB.projects = DB.projects.filter(x => x.id !== id);
+    await persistToSupabase("projects", id, "delete");
+    renderAdmin(); renderPublic(); toast("Project deleted");
+  }
+});
+
+/* ---- Experience Admin ---- */
+function renderExpTable() {
+  const t = document.getElementById("expTable");
+  const exps = DB.experience || [];
+  if (!exps.length) { t.innerHTML = "<tbody><tr><td class='empty-note' style='border:none'>No experience entries. Click + Add experience.</td></tr></tbody>"; return; }
+  t.innerHTML = "<thead><tr><th>Role</th><th>Organisation</th><th style='text-align:right'>Actions</th></tr></thead><tbody>" +
+    exps.map(x =>
+      "<tr><td><div class='t-title'>" + esc(x.role) + "</div><div class='t-sub'>" + esc(x.period || "") + "</div></td>" +
+      "<td class='t-sub'>" + esc(x.org || "") + "</td>" +
+      "<td><div class='row-actions'>" +
+      "<button class='icon-btn' data-act='edit-x' data-id='" + x.id + "' title='Edit'>✎</button>" +
+      "<button class='icon-btn del' data-act='del-x' data-id='" + x.id + "' title='Delete'>✕</button>" +
+      "</div></td></tr>").join("") + "</tbody>";
+}
+
+document.getElementById("expTable").addEventListener("click", async e => {
+  const b = e.target.closest("button[data-act]");
+  if (!b) return;
+  if (b.dataset.act === "edit-x") openExpModal(DB.experience.find(x => x.id === b.dataset.id));
+  else if (b.dataset.act === "del-x" && confirm("Delete experience?")) {
+    const id = b.dataset.id;
+    DB.experience = DB.experience.filter(x => x.id !== id);
+    await persistToSupabase("experiences", id, "delete");
+    renderAdmin(); renderPublic(); toast("Experience deleted");
+  }
+});
+
+/* ---- Education Admin ---- */
+function renderEduTable() {
+  const t = document.getElementById("eduTable");
+  const edus = DB.education || [];
+  if (!edus.length) { t.innerHTML = "<tbody><tr><td class='empty-note' style='border:none'>No education entries. Click + Add education.</td></tr></tbody>"; return; }
+  t.innerHTML = "<thead><tr><th>Degree</th><th>Institution</th><th style='text-align:right'>Actions</th></tr></thead><tbody>" +
+    edus.map(x =>
+      "<tr><td><div class='t-title'>" + esc(x.degree) + "</div><div class='t-sub'>" + esc(x.period || "") + "</div></td>" +
+      "<td class='t-sub'>" + esc(x.institution || "") + "</td>" +
+      "<td><div class='row-actions'>" +
+      "<button class='icon-btn' data-act='edit-e' data-id='" + x.id + "' title='Edit'>✎</button>" +
+      "<button class='icon-btn del' data-act='del-e' data-id='" + x.id + "' title='Delete'>✕</button>" +
+      "</div></td></tr>").join("") + "</tbody>";
+}
+
+document.getElementById("eduTable").addEventListener("click", async e => {
+  const b = e.target.closest("button[data-act]");
+  if (!b) return;
+  if (b.dataset.act === "edit-e") openEduModal(DB.education.find(x => x.id === b.dataset.id));
+  else if (b.dataset.act === "del-e" && confirm("Delete education entry?")) {
+    const id = b.dataset.id;
+    DB.education = DB.education.filter(x => x.id !== id);
+    await persistToSupabase("educations", id, "delete");
+    renderAdmin(); renderPublic(); toast("Education deleted");
+  }
+});
+
+/* ---- Certificates Admin ---- */
+function renderCertTable() {
+  const t = document.getElementById("certTable");
+  const certs = DB.certificates || [];
+  if (!certs.length) { t.innerHTML = "<tbody><tr><td class='empty-note' style='border:none'>No certificates. Click + Add certificate.</td></tr></tbody>"; return; }
+  t.innerHTML = "<thead><tr><th>Title</th><th>Issuer</th><th style='text-align:right'>Actions</th></tr></thead><tbody>" +
+    certs.map(x =>
+      "<tr><td><div class='t-title'>" + esc(x.title) + "</div></td>" +
+      "<td class='t-sub'>" + esc(x.issuer || "") + "</td>" +
+      "<td><div class='row-actions'>" +
+      "<button class='icon-btn' data-act='edit-c' data-id='" + x.id + "' title='Edit'>✎</button>" +
+      "<button class='icon-btn del' data-act='del-c' data-id='" + x.id + "' title='Delete'>✕</button>" +
+      "</div></td></tr>").join("") + "</tbody>";
+}
+
+document.getElementById("certTable").addEventListener("click", async e => {
+  const b = e.target.closest("button[data-act]");
+  if (!b) return;
+  if (b.dataset.act === "edit-c") openCertModal(DB.certificates.find(x => x.id === b.dataset.id));
+  else if (b.dataset.act === "del-c" && confirm("Delete certificate?")) {
+    const id = b.dataset.id;
+    DB.certificates = DB.certificates.filter(x => x.id !== id);
+    await persistToSupabase("certificates", id, "delete");
+    renderAdmin(); renderPublic(); toast("Certificate deleted");
+  }
+});
+
+/* ---- Modal & Dialog Handlers ---- */
+const overlay = document.getElementById("modalOverlay");
+function openModal(title, bodyHTML){ document.getElementById("modalTitle").textContent = title; document.getElementById("modalBody").innerHTML = bodyHTML; overlay.classList.add("open"); }
+function closeModal(){ overlay.classList.remove("open"); }
+document.getElementById("modalClose").addEventListener("click", closeModal);
+overlay.addEventListener("click", e => { if(e.target === overlay) closeModal(); });
+
+// Add Project Modal
+document.getElementById("addProjBtn").addEventListener("click", () => openProjModal(null));
+function openProjModal(p){
+  openModal(p ? "Edit project" : "Add project",
+    '<form id="projModalForm"><div class="form-grid">' +
+    '<div class="field full"><label>Project title</label><input type="text" id="m_title" required value="' + esc(p ? p.title : "") + '"></div>' +
+    '<div class="field full"><label>Description</label><textarea id="m_desc" rows="3">' + esc(p ? (p.desc || p.description || "") : "") + "</textarea></div>" +
+    '<div class="field full"><label>Technologies (comma separated)</label><input type="text" id="m_tech" value="' + esc(p ? (p.tech || []).join(", ") : "") + '"></div>' +
+    '<div class="field"><label>Live link</label><input type="url" id="m_link" value="' + esc(p ? p.link : "") + '"></div>' +
+    '<div class="field"><label>Repository link</label><input type="url" id="m_repo" value="' + esc(p ? p.repo : "") + '"></div>' +
+    '<div class="field full"><label>Image URL</label><input type="text" id="m_img" value="' + esc(p ? p.image : "") + '"></div>' +
+    '</div><div class="modal-actions"><button type="button" class="btn btn-ghost" id="mCancel">Cancel</button>' +
+    '<button type="submit" class="btn btn-accent">' + (p ? "Save changes" : "Add project") + "</button></div></form>");
+
+  document.getElementById("mCancel").addEventListener("click", closeModal);
+  document.getElementById("projModalForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const obj = {
+      id: p ? p.id : uid(),
+      title: document.getElementById("m_title").value.trim(),
+      description: document.getElementById("m_desc").value.trim(),
+      tech: document.getElementById("m_tech").value.split(",").map(s=>s.trim()).filter(Boolean),
+      link: document.getElementById("m_link").value.trim(),
+      repo: document.getElementById("m_repo").value.trim(),
+      image: document.getElementById("m_img").value.trim()
+    };
+    obj.desc = obj.description;
+    if (p) { Object.assign(p, obj); } else { DB.projects.unshift(obj); }
+    closeModal();
+    toast("Syncing project with Supabase...");
+    await persistToSupabase("projects", obj);
+    renderAdmin(); renderPublic(); toast("Project saved ✓");
+  });
+}
+
+// Add Experience Modal
+document.getElementById("addExpBtn").addEventListener("click", () => openExpModal(null));
+function openExpModal(x){
+  const typeOpts = ["Full-time", "Part-time", "Internship", "Freelance", "Contract", "Volunteer"];
+  openModal(x ? "Edit experience" : "Add experience",
+    '<form id="expModalForm"><div class="form-grid">' +
+    '<div class="field"><label>Role / position</label><input type="text" id="x_role" required value="' + esc(x ? x.role : "") + '"></div>' +
+    '<div class="field"><label>Organisation</label><input type="text" id="x_org" value="' + esc(x ? x.org : "") + '"></div>' +
+    '<div class="field"><label>Type</label><select id="x_type">' + typeOpts.map(o => '<option' + (x && x.type === o ? " selected" : "") + ">" + esc(o) + "</option>").join("") + "</select></div>" +
+    '<div class="field"><label>Period</label><input type="text" id="x_period" value="' + esc(x ? x.period : "") + '"></div>' +
+    '<div class="field"><label>Location</label><input type="text" id="x_loc" value="' + esc(x ? x.location : "") + '"></div>' +
+    '<div class="field full"><label>Description</label><textarea id="x_desc" rows="3">' + esc(x ? (x.desc || x.description || "") : "") + "</textarea></div>" +
+    '</div><div class="modal-actions"><button type="button" class="btn btn-ghost" id="x_cancel">Cancel</button>' +
+    '<button type="submit" class="btn btn-accent">' + (x ? "Save changes" : "Add experience") + "</button></div></form>");
+
+  document.getElementById("x_cancel").addEventListener("click", closeModal);
+  document.getElementById("expModalForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const obj = {
+      id: x ? x.id : uid(),
+      role: document.getElementById("x_role").value.trim(),
+      org: document.getElementById("x_org").value.trim(),
+      type: document.getElementById("x_type").value,
+      period: document.getElementById("x_period").value.trim(),
+      location: document.getElementById("x_loc").value.trim(),
+      description: document.getElementById("x_desc").value.trim()
+    };
+    obj.desc = obj.description;
+    if (x) { Object.assign(x, obj); } else { DB.experience.unshift(obj); }
+    closeModal();
+    toast("Syncing experience with Supabase...");
+    await persistToSupabase("experiences", obj);
+    renderAdmin(); renderPublic(); toast("Experience saved ✓");
+  });
+}
+
+// Add Education Modal
+document.getElementById("addEduBtn").addEventListener("click", () => openEduModal(null));
+function openEduModal(x){
+  openModal(x ? "Edit education" : "Add education",
+    '<form id="eduModalForm"><div class="form-grid">' +
+    '<div class="field full"><label>Degree / course</label><input type="text" id="e_deg" required value="' + esc(x ? x.degree : "") + '"></div>' +
+    '<div class="field full"><label>Institution</label><input type="text" id="e_inst" value="' + esc(x ? x.institution : "") + '"></div>' +
+    '<div class="field"><label>Period</label><input type="text" id="e_period" value="' + esc(x ? x.period : "") + '"></div>' +
+    '<div class="field"><label>Grade</label><input type="text" id="e_grade" value="' + esc(x ? x.grade : "") + '"></div>' +
+    '<div class="field full"><label>Highlights</label><textarea id="e_desc" rows="3">' + esc(x ? (x.desc || x.description || "") : "") + "</textarea></div>" +
+    '</div><div class="modal-actions"><button type="button" class="btn btn-ghost" id="e_cancel">Cancel</button>' +
+    '<button type="submit" class="btn btn-accent">' + (x ? "Save changes" : "Add education") + "</button></div></form>");
+
+  document.getElementById("e_cancel").addEventListener("click", closeModal);
+  document.getElementById("eduModalForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const obj = {
+      id: x ? x.id : uid(),
+      degree: document.getElementById("e_deg").value.trim(),
+      institution: document.getElementById("e_inst").value.trim(),
+      period: document.getElementById("e_period").value.trim(),
+      grade: document.getElementById("e_grade").value.trim(),
+      description: document.getElementById("e_desc").value.trim()
+    };
+    obj.desc = obj.description;
+    if (x) { Object.assign(x, obj); } else { DB.education.unshift(obj); }
+    closeModal();
+    toast("Syncing education with Supabase...");
+    await persistToSupabase("educations", obj);
+    renderAdmin(); renderPublic(); toast("Education saved ✓");
+  });
+}
+
+// Add Certificate Modal
+document.getElementById("addCertBtn").addEventListener("click", () => openCertModal(null));
+function openCertModal(ct){
+  openModal(ct ? "Edit certificate" : "Add certificate",
+    '<form id="certModalForm"><div class="form-grid">' +
+    '<div class="field full"><label>Certificate title</label><input type="text" id="c_title" required value="' + esc(ct ? ct.title : "") + '"></div>' +
+    '<div class="field full"><label>Issuer</label><input type="text" id="c_issuer" value="' + esc(ct ? ct.issuer : "") + '"></div>' +
+    '<div class="field"><label>Date / year</label><input type="text" id="c_date" value="' + esc(ct ? ct.date : "") + '"></div>' +
+    '<div class="field"><label>Credential ID</label><input type="text" id="c_cred" value="' + esc(ct ? (ct.credId || ct.cred_id || "") : "") + '"></div>' +
+    '<div class="field full"><label>Verification link</label><input type="url" id="c_link" value="' + esc(ct ? ct.link : "") + '"></div>' +
+    '<div class="field full"><label>Image URL</label><input type="text" id="c_img" value="' + esc(ct ? ct.image : "") + '"></div>' +
+    '</div><div class="modal-actions"><button type="button" class="btn btn-ghost" id="cCancel">Cancel</button>' +
+    '<button type="submit" class="btn btn-accent">' + (ct ? "Save changes" : "Add certificate") + "</button></div></form>");
+
+  document.getElementById("cCancel").addEventListener("click", closeModal);
+  document.getElementById("certModalForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const obj = {
+      id: ct ? ct.id : uid(),
+      title: document.getElementById("c_title").value.trim(),
+      issuer: document.getElementById("c_issuer").value.trim(),
+      date: document.getElementById("c_date").value.trim(),
+      cred_id: document.getElementById("c_cred").value.trim(),
+      link: document.getElementById("c_link").value.trim(),
+      image: document.getElementById("c_img").value.trim()
+    };
+    obj.credId = obj.cred_id;
+    if (ct) { Object.assign(ct, obj); } else { DB.certificates.unshift(obj); }
+    closeModal();
+    toast("Syncing certificate with Supabase...");
+    await persistToSupabase("certificates", obj);
+    renderAdmin(); renderPublic(); toast("Certificate saved ✓");
+  });
+}
+
+// Contact Form Submit
+function fillContactForm() {
+  const c = DB.contact || DEFAULTS.contact;
+  document.getElementById("cf_email").value = c.email || "";
+  document.getElementById("cf_phone").value = c.phone || "";
+  document.getElementById("cf_location").value = c.location || "";
+  document.getElementById("cf_sub").value = c.sub || "";
+  renderSocialEditor();
+}
+
+document.getElementById("contactForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  DB.contact.email = document.getElementById("cf_email").value.trim();
+  DB.contact.phone = document.getElementById("cf_phone").value.trim();
+  DB.contact.location = document.getElementById("cf_location").value.trim();
+  DB.contact.sub = document.getElementById("cf_sub").value.trim();
+  
+  toast("Saving contact to Supabase...");
+  await persistToSupabase("contacts", { id: "main", ...DB.contact });
+  renderPublic();
+  toast("Contact details saved ✓");
+});
+
+function renderSocialEditor() {
+  const box = document.getElementById("socialRows");
+  const rows = (DB.contact && DB.contact.socials && DB.contact.socials.length ? DB.contact.socials : [{ label: "", url: "" }]);
+  box.innerHTML = rows.map((s, i) =>
+    '<div class="social-row-edit">' +
+    '<input type="text" data-si="' + i + '" data-f="label" placeholder="Label" value="' + esc(s.label) + '">' +
+    '<input type="url" data-si="' + i + '" data-f="url" placeholder="https://..." value="' + esc(s.url) + '">' +
+    '<button type="button" class="icon-btn del" data-del="' + i + '" title="Remove">✕</button></div>').join("");
+}
+
+document.getElementById("socialRows").addEventListener("click", e => {
+  const b = e.target.closest("button[data-del]");
+  if (!b) return;
+  const i = parseInt(b.dataset.del, 10);
+  DB.contact.socials.splice(i, 1);
+  renderSocialEditor();
+});
+
+document.getElementById("addSocialBtn").addEventListener("click", () => {
+  if (!DB.contact.socials) DB.contact.socials = [];
+  DB.contact.socials.push({ label: "", url: "" });
+  renderSocialEditor();
+});
+
+document.getElementById("saveSocialsBtn").addEventListener("click", async () => {
+  const out = [];
+  document.querySelectorAll("#socialRows .social-row-edit").forEach(row => {
+    const label = row.querySelector('[data-f="label"]').value.trim();
+    const url = row.querySelector('[data-f="url"]').value.trim();
+    if (label && url) out.push({ label, url });
+  });
+  DB.contact.socials = out;
+  toast("Saving socials to Supabase...");
+  await persistToSupabase("contacts", { id: "main", ...DB.contact });
+  renderSocialEditor(); renderPublic(); toast("Social links saved ✓");
+});
+
+// Backup Export/Import
+document.getElementById("exportBtn").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify(DB, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "portfolio-backup.json";
+  a.click(); URL.revokeObjectURL(a.href);
+});
+
+document.getElementById("importBtn").addEventListener("click", () => document.getElementById("importFile").click());
+document.getElementById("importFile").addEventListener("change", e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = async () => {
+    try {
+      const d = JSON.parse(r.result);
+      if (!d || !d.profile) throw new Error("Invalid file");
+      DB = d;
+      renderAdmin(); renderPublic(); toast("Backup loaded locally. Save tabs to sync with Supabase.");
+    } catch (err) { toast("Invalid backup file"); }
+  };
+  r.readAsText(f); e.target.value = "";
+});
+
+/* ================= START APP ================= */
+boot();
+</script>
+</body>
+</html>

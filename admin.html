@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio Admin Console — Moghith B K</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Azeret+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- Supabase JS Client -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/portfolio-core.js"></script>
+<style>
+:root{
+  --bg:#f5f4f1;
+  --surface:#ffffff;
+  --surface-warm:#edecE8;
+  --border:rgba(22,20,17,.12);
+  --border-strong:rgba(22,20,17,.28);
+  --ink:#141210;
+  --ink-dim:#55524b;
+  --ink-faint:#8e8a82;
+  --accent:#c2410c;
+  --accent-soft:#fdeee4;
+  --accent-deep:#9a3412;
+  --sage:#707070;
+  --sage-soft:#e7e7e5;
+  --shadow-lg:0 1px 1px rgba(22,20,17,.04), 0 4px 10px rgba(22,20,17,.06), 0 28px 70px rgba(22,20,17,.17);
+  --radius:14px;
+  --font-display:"Instrument Serif", Georgia, serif;
+  --font-body:"Plus Jakarta Sans", "Segoe UI", sans-serif;
+  --font-mono:"Azeret Mono", "Courier New", monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+button{font-family:inherit;cursor:pointer}
+
+.wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+.btn{display:inline-flex;align-items:center;gap:8px;border:none;border-radius:999px;padding:10px 20px;font-size:.88rem;font-weight:600;transition:all .15s ease}
+.btn:hover{transform:translateY(-2px)}
+.btn-primary{background:linear-gradient(180deg,#35322d,#141210 65%);color:#fff}
+.btn-accent{background:linear-gradient(180deg,#d4551c,#c2410c 65%);color:#fff}
+.btn-ghost{background:transparent;color:var(--ink);border:1.5px solid var(--border-strong)}
+.btn-ghost:hover{background:var(--surface)}
+.btn-sm{padding:7px 14px;font-size:.8rem}
+.btn-danger{background:#fee2e2;color:#b91c1c}
+
+/* Login */
+.login-shell{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px;background:radial-gradient(700px 400px at 85% -10%, var(--accent-soft), transparent 65%), var(--bg)}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow-lg);padding:44px 40px;width:100%;max-width:400px}
+.mono-label{font-family:var(--font-mono);font-size:.7rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-dim);display:flex;align-items:center;gap:10px}
+.mono-label::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.login-card h1{font-family:var(--font-display);font-weight:400;font-size:2rem;margin:12px 0 6px}
+.login-card .sub{color:var(--ink-dim);font-size:.9rem;margin-bottom:24px}
+.login-err{background:#fee2e2;color:#b91c1c;font-size:.82rem;padding:9px 14px;border-radius:8px;margin-bottom:16px;display:none}
+
+.field{margin-bottom:16px}
+.field label{display:block;font-size:.8rem;font-weight:700;margin-bottom:7px;color:var(--ink)}
+.field label .opt{font-weight:400;color:var(--ink-faint)}
+input[type=text],input[type=password],input[type=email],input[type=url],textarea,select{
+  width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:var(--font-body);font-size:.92rem;background:var(--surface);color:var(--ink);transition:border-color .15s}
+input[type=file]{font-size:.85rem;padding:8px;background:var(--surface-warm);border:1px dashed var(--border-strong);border-radius:10px;cursor:pointer}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(194,65,12,.12)}
+textarea{resize:vertical;min-height:90px}
+
+.img-preview-box{margin-top:10px;padding:10px;background:var(--surface-warm);border:1px dashed var(--border-strong);border-radius:12px;text-align:center}
+.img-preview-box img{max-height:160px;margin:0 auto;border-radius:8px;box-shadow:var(--shadow-lg);object-fit:cover}
+
+.login-card .btn{width:100%;justify-content:center;margin-top:8px}
+.login-foot{margin-top:22px;text-align:center;font-size:.78rem;color:var(--ink-faint)}
+
+/* Admin Layout */
+.admin-shell{min-height:100vh;background:var(--bg)}
+.admin-top{background:linear-gradient(180deg,#2b2925,var(--ink) 70%);color:#fff;position:sticky;top:0;z-index:60;box-shadow:0 10px 30px -12px rgba(20,18,16,.5)}
+.admin-top .wrap{display:flex;align-items:center;justify-content:space-between;height:60px;gap:14px}
+.admin-top .brand{color:#fff;font-size:1.15rem;font-family:var(--font-display)}
+.admin-top .brand em{color:#fdba74}
+.admin-top-actions{display:flex;gap:10px;align-items:center}
+.btn-outline-w{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.3)}
+.btn-outline-w:hover{background:rgba(255,255,255,.1)}
+
+.sb-status-badge{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;padding:5px 12px;border-radius:999px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.sb-status-connected{background:#dcfce7;color:#15803d;border:1px solid #bbf7d0}
+.sb-status-disconnected{background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5}
+
+.admin-tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:60px;z-index:55;overflow-x:auto}
+.admin-tab{flex:0 0 auto;background:none;border:none;border-bottom:2.5px solid transparent;padding:15px 20px;font-size:.88rem;font-weight:600;color:var(--ink-dim);white-space:nowrap}
+.admin-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.admin-tab .n{font-family:var(--font-mono);font-size:.68rem;background:var(--surface-warm);border-radius:999px;padding:1px 8px;margin-left:6px;color:var(--ink-dim)}
+
+.admin-body{padding:40px 0 80px;max-width:980px}
+.admin-panel h2{font-family:var(--font-display);font-weight:400;font-size:1.9rem;margin-bottom:6px}
+.admin-panel .desc{color:var(--ink-dim);font-size:.92rem;margin-bottom:26px;max-width:64ch}
+.panel-head-row{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:20px;flex-wrap:wrap}
+
+.item-table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;font-size:.9rem}
+.item-table thead th{text-align:left;font-family:var(--font-mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);padding:13px 16px;background:var(--surface-warm);border-bottom:1px solid var(--border)}
+.item-table td{padding:14px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
+.item-table tr:last-child td{border-bottom:none}
+.item-table tr:hover td{background:#fdfbf9}
+.item-table .t-title{font-weight:700}
+.item-table .t-sub{font-size:.8rem;color:var(--ink-dim)}
+.item-table .row-actions{display:flex;gap:8px;justify-content:flex-end}
+.icon-btn{width:34px;height:34px;border-radius:99px;border:1.5px solid var(--border);background:var(--surface);display:inline-flex;align-items:center;justify-content:center;color:var(--ink-dim);transition:all .15s}
+.icon-btn:hover{border-color:var(--ink);color:var(--ink)}
+.icon-btn.del:hover{background:#fee2e2;border-color:#fca5a5;color:#b91c1c}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+.form-grid .full{grid-column:1/-1}
+@media(max-width:640px){.form-grid{grid-template-columns:1fr}}
+
+.adm-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px;margin-bottom:22px}
+.adm-card h3{font-size:1.02rem;font-weight:700;margin-bottom:4px}
+.adm-card .hint{font-size:.8rem;color:var(--ink-faint);margin-bottom:18px}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(31,26,20,.5);backdrop-filter:blur(3px);z-index:100;display:none;align-items:flex-start;justify-content:center;padding:30px 18px;overflow-y:auto}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:18px;box-shadow:var(--shadow-lg);width:100%;max-width:620px;margin:auto 0}
+.modal-head{display:flex;justify-content:space-between;align-items:center;padding:22px 26px 0}
+.modal-head h3{font-family:var(--font-display);font-weight:400;font-size:1.5rem}
+.modal-close{background:none;border:none;font-size:1.5rem;line-height:1;color:var(--ink-faint);padding:4px}
+.modal-body{padding:20px 26px 26px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:22px}
+.social-editor .social-row-edit{display:grid;grid-template-columns:110px 1fr 40px;gap:10px;margin-bottom:10px;align-items:center}
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(80px);background:linear-gradient(180deg,#35322d,#141210 70%);color:#fff;padding:12px 22px;border-radius:999px;font-size:.88rem;font-weight:600;box-shadow:var(--shadow-lg);z-index:200;transition:transform .3s ease, opacity .3s ease;opacity:0}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.check-row{display:flex;gap:10px;align-items:flex-start;font-weight:500;font-size:.88rem;margin:9px 0;cursor:pointer;color:var(--ink)}
+.check-row input[type=checkbox]{width:16px!important;height:16px;accent-color:var(--accent);margin-top:2px}
+.fx-checks{background:var(--surface-warm);border:1px dashed var(--border-strong);border-radius:12px;padding:16px 18px 8px;margin-top:4px}
+</style>
+</head>
+<body>
+
+<!-- ==================== ADMIN LOGIN VIEW ==================== -->
+<div id="loginView">
+  <div class="login-shell">
+    <div class="login-card">
+      <div class="mono-label">Restricted Area</div>
+      <h1>Admin Console</h1>
+      <p class="sub">Sign in to manage your portfolio content and Supabase sync.</p>
+      <div class="login-err" id="loginErr">Incorrect password. Please try again.</div>
+      <form id="loginForm">
+        <div class="field">
+          <label for="pw">Password</label>
+          <input type="password" id="pw" placeholder="Enter admin password" autofocus required>
+        </div>
+        <button class="btn btn-primary" type="submit">Unlock Console</button>
+      </form>
+      <div class="login-foot"><a href="./index.html">← Back to Main Portfolio Site</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ADMIN CONSOLE VIEW ==================== -->
+<div id="adminView" style="display:none">
+  <div class="admin-shell">
+    <div class="admin-top">
+      <div class="wrap">
+        <span class="brand"><em>◆</em> Portfolio Admin Panel</span>
+        <div class="admin-top-actions">
+          <span class="sb-status-badge sb-status-disconnected" id="topSbBadge">Supabase Disconnected</span>
+          <a class="btn btn-outline-w btn-sm" href="./index.html">View Main Site</a>
+          <button class="btn btn-outline-w btn-sm" id="logoutBtn">Log out</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-tabs wrap" id="adminTabs">
+      <button class="admin-tab active" data-tab="profile">Profile</button>
+      <button class="admin-tab" data-tab="experience">Experience <span class="n" id="tabExpN">0</span></button>
+      <button class="admin-tab" data-tab="education">Education <span class="n" id="tabEduN">0</span></button>
+      <button class="admin-tab" data-tab="projects">Projects <span class="n" id="tabProjN">0</span></button>
+      <button class="admin-tab" data-tab="certificates">Certificates <span class="n" id="tabCertN">0</span></button>
+      <button class="admin-tab" data-tab="contact">Contact</button>
+      <button class="admin-tab" data-tab="supabase">⚡ Supabase Config</button>
+    </div>
+
+    <div class="wrap admin-body">
+
+      <!-- PROFILE -->
+      <div class="admin-panel" id="panel-profile">
+        <h2>Your Profile</h2>
+        <p class="desc">Manage your full name, role, photo, bio, skills, and animation settings.</p>
+        <form id="profileForm" class="adm-card">
+          <div class="form-grid">
+            <div class="field"><label>Full name</label><input type="text" id="pf_name" required></div>
+            <div class="field"><label>Role / title</label><input type="text" id="pf_role"></div>
+            <div class="field full"><label>Tagline</label><input type="text" id="pf_tagline"></div>
+            <div class="field full"><label>About / bio</label><textarea id="pf_bio" rows="5"></textarea></div>
+            
+            <!-- Direct Image Upload for Profile Photo -->
+            <div class="field full">
+              <label>Profile Photo <span class="opt">(Direct File Upload or Image URL)</span></label>
+              <input type="file" id="pf_photoFile" accept="image/*">
+              <input type="text" id="pf_photo" placeholder="https://... or uploaded image data" style="margin-top:8px">
+              <div class="img-preview-box" id="pf_photoBox" style="display:none">
+                <img id="pf_photoPrev" alt="Profile Preview">
+              </div>
+            </div>
+
+            <div class="field full"><label>Skills <span class="opt">(comma separated)</span></label><input type="text" id="pf_skills"></div>
+            <div class="field"><label>Location</label><input type="text" id="pf_location"></div>
+            <div class="field"><label>Résumé link</label><input type="url" id="pf_resume"></div>
+            <div class="field full fx-checks">
+              <label style="margin-bottom:4px">Animations and effects</label>
+              <label class="check-row"><input type="checkbox" id="pf_fxType"> Typewriter role animation</label>
+              <label class="check-row"><input type="checkbox" id="pf_fxSlide"> Scroll slide-in effects</label>
+              <label class="check-row"><input type="checkbox" id="pf_fxBlink"> Blinking accents</label>
+            </div>
+          </div>
+          <div class="modal-actions"><button class="btn btn-accent" type="submit">Save Profile to Supabase</button></div>
+        </form>
+      </div>
+
+      <!-- EXPERIENCE -->
+      <div class="admin-panel" id="panel-experience" style="display:none">
+        <h2>Experience</h2>
+        <p class="desc">Manage internships, jobs, and work history.</p>
+        <div class="panel-head-row">
+          <span class="mono-label">Roles & Positions</span>
+          <button class="btn btn-accent btn-sm" id="addExpBtn">+ Add experience</button>
+        </div>
+        <div class="table-scroll"><table class="item-table" id="expTable"></table></div>
+      </div>
+
+      <!-- EDUCATION -->
+      <div class="admin-panel" id="panel-education" style="display:none">
+        <h2>Education</h2>
+        <p class="desc">Manage degrees, colleges, and schooling.</p>
+        <div class="panel-head-row">
+          <span class="mono-label">Academic Background</span>
+          <button class="btn btn-accent btn-sm" id="addEduBtn">+ Add education</button>
+        </div>
+        <div class="table-scroll"><table class="item-table" id="eduTable"></table></div>
+      </div>
+
+      <!-- PROJECTS -->
+      <div class="admin-panel" id="panel-projects" style="display:none">
+        <h2>Projects</h2>
+        <p class="desc">Add, edit, or remove portfolio showcase projects.</p>
+        <div class="panel-head-row">
+          <span class="mono-label">Showcased Projects</span>
+          <button class="btn btn-accent btn-sm" id="addProjBtn">+ Add project</button>
+        </div>
+        <div class="table-scroll"><table class="item-table" id="projTable"></table></div>
+      </div>
+
+      <!-- CERTIFICATES -->
+      <div class="admin-panel" id="panel-certificates" style="display:none">
+        <h2>Certificates</h2>
+        <p class="desc">Manage course credentials and certificates.</p>
+        <div class="panel-head-row">
+          <span class="mono-label">Verified Credentials</span>
+          <button class="btn btn-accent btn-sm" id="addCertBtn">+ Add certificate</button>
+        </div>
+        <div class="table-scroll"><table class="item-table" id="certTable"></table></div>
+      </div>
+
+      <!-- CONTACT -->
+      <div class="admin-panel" id="panel-contact" style="display:none">
+        <h2>Contact Details</h2>
+        <p class="desc">Update email, phone, location, and social links.</p>
+        <form id="contactForm" class="adm-card">
+          <div class="form-grid">
+            <div class="field"><label>Email</label><input type="email" id="cf_email"></div>
+            <div class="field"><label>Phone</label><input type="text" id="cf_phone"></div>
+            <div class="field full"><label>Location</label><input type="text" id="cf_location"></div>
+            <div class="field full"><label>Contact Intro Line</label><input type="text" id="cf_sub"></div>
+          </div>
+          <div class="modal-actions"><button class="btn btn-accent" type="submit">Save Contact to Supabase</button></div>
+        </form>
+        <div class="adm-card social-editor">
+          <h3>Social Links</h3>
+          <div id="socialRows"></div>
+          <button class="btn btn-ghost btn-sm" type="button" id="addSocialBtn">+ Add social link</button>
+          <div class="modal-actions"><button class="btn btn-accent" type="button" id="saveSocialsBtn">Save Social Links</button></div>
+        </div>
+      </div>
+
+      <!-- SUPABASE CONFIG -->
+      <div class="admin-panel" id="panel-supabase" style="display:none">
+        <h2>⚡ Supabase Connection Settings</h2>
+        <p class="desc">Connect your portfolio directly to your Supabase PostgreSQL cloud database.</p>
+        <form id="supabaseConfigForm" class="adm-card">
+          <div class="form-grid">
+            <div class="field full">
+              <label>Supabase Project URL</label>
+              <input type="url" id="sb_url_input" placeholder="https://your-project.supabase.co" required>
+            </div>
+            <div class="field full">
+              <label>Supabase Anon Key</label>
+              <input type="text" id="sb_key_input" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6..." required>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button class="btn btn-accent" type="submit">Connect & Sync Supabase</button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL ==================== -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-head"><h3 id="modalTitle">Edit</h3><button class="modal-close" id="modalClose">✕</button></div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+const Core = window.PortfolioCore;
+const SESSION_KEY = "pf_admin_ok";
+const ADMIN_PW = "2005";
+const DEFAULTS = Core.DEFAULTS;
+const esc = Core.esc;
+const uid = Core.uid;
+let DB = Core.getDB();
+
+function syncDB() { DB = Core.getDB(); }
+
+function getSavedCredentials() { return Core.getCredentials(); }
+
+function initSupabase() {
+  const ok = Core.initSupabase();
+  updateSbBadge(ok);
+  return ok;
+}
+
+function updateSbBadge(connected) {
+  const badge = document.getElementById("topSbBadge");
+  if (!badge) return;
+  if (connected) {
+    badge.textContent = "✓ Supabase Connected";
+    badge.className = "sb-status-badge sb-status-connected";
+  } else {
+    badge.textContent = "Supabase Disconnected";
+    badge.className = "sb-status-badge sb-status-disconnected";
+  }
+}
+
+async function loadFromSupabase() {
+  const result = await Core.loadFromSupabase();
+  syncDB();
+  updateSbBadge(result.ok);
+  if (!result.ok && result.error) toast("Database error: " + result.error);
+}
+
+async function persistToSupabase(table, payload, action) {
+  try {
+    await Core.persist(table, payload, action);
+    return true;
+  } catch (err) {
+    toast("Database error: " + (err.message || "Failed"));
+    return false;
+  }
+}
+
+/* ================= IMAGE FILE PROCESSING & OPTIMIZATION ================= */
+function processImageFile(file, callback) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement("canvas");
+      let width = img.width;
+      let height = img.height;
+      const maxDim = 1000;
+      if (width > maxDim || height > maxDim) {
+        if (width > height) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        } else {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+      }
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, width, height);
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+      callback(dataUrl);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 3000);
+}
+
+// Auth & Nav
+function checkAuth() {
+  if (sessionStorage.getItem(SESSION_KEY) === "1") {
+    document.getElementById("loginView").style.display = "none";
+    document.getElementById("adminView").style.display = "block";
+    renderAdmin();
+  } else {
+    document.getElementById("loginView").style.display = "block";
+    document.getElementById("adminView").style.display = "none";
+  }
+}
+
+document.getElementById("loginForm").addEventListener("submit", e => {
+  e.preventDefault();
+  if (document.getElementById("pw").value === ADMIN_PW) {
+    sessionStorage.setItem(SESSION_KEY, "1");
+    document.getElementById("loginErr").style.display = "none";
+    checkAuth();
+  } else {
+    document.getElementById("loginErr").style.display = "block";
+  }
+});
+
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  sessionStorage.removeItem(SESSION_KEY);
+  checkAuth();
+});
+
+// Admin Tabs
+document.getElementById("adminTabs").addEventListener("click", e => {
+  const btn = e.target.closest("button[data-tab]");
+  if (!btn) return;
+  document.querySelectorAll("#adminTabs .admin-tab").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  const target = btn.dataset.tab;
+  document.querySelectorAll(".admin-panel").forEach(p => p.style.display = "none");
+  const sel = document.getElementById("panel-" + target);
+  if (sel) sel.style.display = "block";
+});
+
+function renderAdmin() {
+  fillProfileForm();
+  fillContactForm();
+  fillSupabaseConfigForm();
+  renderExpTable();
+  renderEduTable();
+  renderProjTable();
+  renderCertTable();
+
+  document.getElementById("tabExpN").textContent = (DB.experience || []).length;
+  document.getElementById("tabEduN").textContent = (DB.education || []).length;
+  document.getElementById("tabProjN").textContent = (DB.projects || []).length;
+  document.getElementById("tabCertN").textContent = (DB.certificates || []).length;
+}
+
+function fillProfileForm() {
+  const p = DB.profile || DEFAULTS.profile;
+  document.getElementById("pf_name").value = p.name || "";
+  document.getElementById("pf_role").value = p.role || "";
+  document.getElementById("pf_tagline").value = p.tagline || "";
+  document.getElementById("pf_bio").value = p.bio || "";
+  document.getElementById("pf_photo").value = p.photo || "";
+  document.getElementById("pf_skills").value = Array.isArray(p.skills) ? p.skills.join(", ") : (p.skills || "");
+  document.getElementById("pf_location").value = p.location || "";
+  document.getElementById("pf_resume").value = p.resume || "";
+
+  const fx = p.effects || { typewriter: true, slides: true, blink: true };
+  document.getElementById("pf_fxType").checked = !!fx.typewriter;
+  document.getElementById("pf_fxSlide").checked = !!fx.slides;
+  document.getElementById("pf_fxBlink").checked = !!fx.blink;
+
+  if (p.photo) {
+    document.getElementById("pf_photoPrev").src = p.photo;
+    document.getElementById("pf_photoBox").style.display = "block";
+  } else {
+    document.getElementById("pf_photoBox").style.display = "none";
+  }
+}
+
+// Direct Profile Photo Upload Event
+document.getElementById("pf_photoFile").addEventListener("change", e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  toast("Processing image file...");
+  processImageFile(file, dataUrl => {
+    document.getElementById("pf_photo").value = dataUrl;
+    document.getElementById("pf_photoPrev").src = dataUrl;
+    document.getElementById("pf_photoBox").style.display = "block";
+    toast("Image ready for saving ✓");
+  });
+});
+
+document.getElementById("pf_photo").addEventListener("input", e => {
+  const val = e.target.value.trim();
+  if (val) {
+    document.getElementById("pf_photoPrev").src = val;
+    document.getElementById("pf_photoBox").style.display = "block";
+  } else {
+    document.getElementById("pf_photoBox").style.display = "none";
+  }
+});
+
+function fillSupabaseConfigForm() {
+  const creds = getSavedCredentials();
+  document.getElementById("sb_url_input").value = creds.url || "";
+  document.getElementById("sb_key_input").value = creds.key || "";
+}
+
+// Profile Submit
+document.getElementById("profileForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const pf = {
+    id: "main",
+    name: document.getElementById("pf_name").value.trim(),
+    role: document.getElementById("pf_role").value.trim(),
+    tagline: document.getElementById("pf_tagline").value.trim(),
+    bio: document.getElementById("pf_bio").value.trim(),
+    photo: document.getElementById("pf_photo").value.trim(),
+    skills: document.getElementById("pf_skills").value.split(",").map(s=>s.trim()).filter(Boolean),
+    location: document.getElementById("pf_location").value.trim(),
+    resume: document.getElementById("pf_resume").value.trim(),
+    effects: {
+      typewriter: document.getElementById("pf_fxType").checked,
+      slides: document.getElementById("pf_fxSlide").checked,
+      blink: document.getElementById("pf_fxBlink").checked
+    }
+  };
+  DB.profile = pf;
+  toast("Saving profile to Supabase...");
+  await persistToSupabase("profiles", pf);
+  toast("Profile saved & image synced with index page ✓");
+});
+
+// Supabase Config Submit
+document.getElementById("supabaseConfigForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const url = document.getElementById("sb_url_input").value.trim();
+  const key = document.getElementById("sb_key_input").value.trim();
+  localStorage.setItem(Core.CONFIG_KEY, JSON.stringify({ url, key }));
+  const ok = initSupabase();
+  if (ok) {
+    await loadFromSupabase();
+    renderAdmin();
+    toast("Connected & synced with Supabase ✓");
+  } else {
+    toast("Connection failed. Check URL & Key.");
+  }
+});
+
+/* Tables & Modals */
+function renderProjTable() {
+  const t = document.getElementById("projTable");
+  const projs = DB.projects || [];
+  if (!projs.length) { t.innerHTML = "<tbody><tr><td class='empty-note' style='border:none'>No projects yet.</td></tr></tbody>"; return; }
+  t.innerHTML = "<thead><tr><th>Title</th><th>Tech Stack</th><th style='text-align:right'>Actions</th></tr></thead><tbody>" +
+    projs.map(x =>
+      "<tr><td><div class='t-title'>" + esc(x.title) + "</div></td>" +
+      "<td class='t-sub'>" + (Array.isArray(x.tech) ? x.tech.join(", ") : "") + "</td>" +
+      "<td><div class='row-actions'>" +
+      "<button class='icon-btn' data-act='edit-p' data-id='" + x.id + "'>✎</button>" +
+      "<button class='icon-btn del' data-act='del-p' data-id='" + x.id + "'>✕</button>" +
+      "</div></td></tr>").join("") + "</tbody>";
+}
+
+document.getElementById("projTable").addEventListener("click", async e => {
+  const b = e.target.closest("button[data-act]");
+  if (!b) return;
+  if (b.dataset.act === "edit-p") openProjModal(DB.projects.find(x => x.id === b.dataset.id));
+  else if (b.dataset.act === "del-p" && confirm("Delete project?")) {
+    const id = b.dataset.id;
+    DB.projects = DB.projects.filter(x => x.id !== id);
+    await persistToSupabase("projects", id, "delete");
+    renderAdmin(); toast("Project deleted");
+  }
+});
+
+function renderExpTable() {
+  const t = document.getElementById("expTable");
+  const exps = DB.experience || [];
+  if (!exps.length) { t.innerHTML = "<tbody><tr><td class='empty-note' style='border:none'>No experience entries.</td></tr></tbody>"; return; }
+  t.innerHTML = "<thead><tr><th>Role</th><th>Organisation</th><th style='text-align:right'>Actions</th></tr></thead><tbody>" +
+    exps.map(x =>
+      "<tr><td><div class='t-title'>" + esc(x.role) + "</div></td>" +
+      "<td class='t-sub'>" + esc(x.org || "") + "</td>" +
+      "<td><div class='row-actions'>" +
+      "<button class='icon-btn' data-act='edit-x' data-id='" + x.id + "'>✎</button>" +
+      "<button class='icon-btn del' data-act='del-x' data-id='" + x.id + "'>✕</button>" +
+      "</div></td></tr>").join("") + "</tbody>";
+}
+
+document.getElementById("expTable").addEventListener("click", async e => {
+  const b = e.target.closest("button[data-act]");
+  if (!b) return;
+  if (b.dataset.act === "edit-x") openExpModal(DB.experience.find(x => x.id === b.dataset.id));
+  else if (b.dataset.act === "del-x" && confirm("Delete experience?")) {
+    const id = b.dataset.id;
+    DB.experience = DB.experience.filter(x => x.id !== id);
+    await persistToSupabase("experiences", id, "delete");
+    renderAdmin(); toast("Experience deleted");
+  }
+});
+
+function renderEduTable() {
+  const t = document.getElementById("eduTable");
+  const edus = DB.education || [];
+  if (!edus.length) { t.innerHTML = "<tbody><tr><td class='empty-note' style='border:none'>No education entries.</td></tr></tbody>"; return; }
+  t.innerHTML = "<thead><tr><th>Degree</th><th>Institution</th><th style='text-align:right'>Actions</th></tr></thead><tbody>" +
+    edus.map(x =>
+      "<tr><td><div class='t-title'>" + esc(x.degree) + "</div></td>" +
+      "<td class='t-sub'>" + esc(x.institution || "") + "</td>" +
+      "<td><div class='row-actions'>" +
+      "<button class='icon-btn' data-act='edit-e' data-id='" + x.id + "'>✎</button>" +
+      "<button class='icon-btn del' data-act='del-e' data-id='" + x.id + "'>✕</button>" +
+      "</div></td></tr>").join("") + "</tbody>";
+}
+
+document.getElementById("eduTable").addEventListener("click", async e => {
+  const b = e.target.closest("button[data-act]");
+  if (!b) return;
+  if (b.dataset.act === "edit-e") openEduModal(DB.education.find(x => x.id === b.dataset.id));
+  else if (b.dataset.act === "del-e" && confirm("Delete education?")) {
+    const id = b.dataset.id;
+    DB.education = DB.education.filter(x => x.id !== id);
+    await persistToSupabase("educations", id, "delete");
+    renderAdmin(); toast("Education deleted");
+  }
+});
+
+function renderCertTable() {
+  const t = document.getElementById("certTable");
+  const certs = DB.certificates || [];
+  if (!certs.length) { t.innerHTML = "<tbody><tr><td class='empty-note' style='border:none'>No certificates.</td></tr></tbody>"; return; }
+  t.innerHTML = "<thead><tr><th>Title</th><th>Issuer</th><th style='text-align:right'>Actions</th></tr></thead><tbody>" +
+    certs.map(x =>
+      "<tr><td><div class='t-title'>" + esc(x.title) + "</div></td>" +
+      "<td class='t-sub'>" + esc(x.issuer || "") + "</td>" +
+      "<td><div class='row-actions'>" +
+      "<button class='icon-btn' data-act='edit-c' data-id='" + x.id + "'>✎</button>" +
+      "<button class='icon-btn del' data-act='del-c' data-id='" + x.id + "'>✕</button>" +
+      "</div></td></tr>").join("") + "</tbody>";
+}
+
+document.getElementById("certTable").addEventListener("click", async e => {
+  const b = e.target.closest("button[data-act]");
+  if (!b) return;
+  if (b.dataset.act === "edit-c") openCertModal(DB.certificates.find(x => x.id === b.dataset.id));
+  else if (b.dataset.act === "del-c" && confirm("Delete certificate?")) {
+    const id = b.dataset.id;
+    DB.certificates = DB.certificates.filter(x => x.id !== id);
+    await persistToSupabase("certificates", id, "delete");
+    renderAdmin(); toast("Certificate deleted");
+  }
+});
+
+/* Modal helpers */
+const overlay = document.getElementById("modalOverlay");
+function openModal(title, bodyHTML){ document.getElementById("modalTitle").textContent = title; document.getElementById("modalBody").innerHTML = bodyHTML; overlay.classList.add("open"); }
+function closeModal(){ overlay.classList.remove("open"); }
+document.getElementById("modalClose").addEventListener("click", closeModal);
+
+document.getElementById("addProjBtn").addEventListener("click", () => openProjModal(null));
+function openProjModal(p){
+  openModal(p ? "Edit project" : "Add project",
+    '<form id="projModalForm"><div class="form-grid">' +
+    '<div class="field full"><label>Title</label><input type="text" id="m_title" required value="' + esc(p ? p.title : "") + '"></div>' +
+    '<div class="field full"><label>Description</label><textarea id="m_desc" rows="3">' + esc(p ? p.desc || p.description : "") + "</textarea></div>" +
+    '<div class="field full"><label>Tech Stack</label><input type="text" id="m_tech" value="' + esc(p ? (p.tech || []).join(", ") : "") + '"></div>' +
+    '<div class="field"><label>Live link</label><input type="url" id="m_link" value="' + esc(p ? p.link : "") + '"></div>' +
+    '<div class="field"><label>Repo link</label><input type="url" id="m_repo" value="' + esc(p ? p.repo : "") + '"></div>' +
+    '<div class="field full"><label>Project Banner Image</label><input type="file" id="m_imgFile" accept="image/*"><input type="text" id="m_img" value="' + esc(p ? p.image : "") + '" placeholder="https://... or uploaded image data" style="margin-top:8px"><div class="img-preview-box" id="m_imgBox" style="' + (p && p.image ? 'display:block' : 'display:none') + '"><img id="m_imgPrev" src="' + esc(p ? p.image : "") + '" alt="Preview"></div></div>' +
+    '</div><div class="modal-actions"><button type="button" class="btn btn-ghost" id="mCancel">Cancel</button>' +
+    '<button type="submit" class="btn btn-accent">Save Project</button></div></form>');
+
+  document.getElementById("m_imgFile").addEventListener("change", e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    toast("Processing image file...");
+    processImageFile(file, dataUrl => {
+      document.getElementById("m_img").value = dataUrl;
+      document.getElementById("m_imgPrev").src = dataUrl;
+      document.getElementById("m_imgBox").style.display = "block";
+      toast("Image ready ✓");
+    });
+  });
+
+  document.getElementById("m_img").addEventListener("input", e => {
+    const val = e.target.value.trim();
+    if (val) {
+      document.getElementById("m_imgPrev").src = val;
+      document.getElementById("m_imgBox").style.display = "block";
+    } else {
+      document.getElementById("m_imgBox").style.display = "none";
+    }
+  });
+
+  document.getElementById("mCancel").addEventListener("click", closeModal);
+  document.getElementById("projModalForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const obj = {
+      id: p ? p.id : uid(),
+      title: document.getElementById("m_title").value.trim(),
+      description: document.getElementById("m_desc").value.trim(),
+      tech: document.getElementById("m_tech").value.split(",").map(s=>s.trim()).filter(Boolean),
+      link: document.getElementById("m_link").value.trim(),
+      repo: document.getElementById("m_repo").value.trim(),
+      image: document.getElementById("m_img").value.trim()
+    };
+    if (p) { Object.assign(p, obj); } else { DB.projects.unshift(obj); }
+    closeModal();
+    toast("Saving project image to Supabase...");
+    await persistToSupabase("projects", obj);
+    renderAdmin(); toast("Project saved ✓");
+  });
+}
+
+document.getElementById("addExpBtn").addEventListener("click", () => openExpModal(null));
+function openExpModal(x){
+  openModal(x ? "Edit experience" : "Add experience",
+    '<form id="expModalForm"><div class="form-grid">' +
+    '<div class="field"><label>Role</label><input type="text" id="x_role" required value="' + esc(x ? x.role : "") + '"></div>' +
+    '<div class="field"><label>Organisation</label><input type="text" id="x_org" value="' + esc(x ? x.org : "") + '"></div>' +
+    '<div class="field"><label>Period</label><input type="text" id="x_period" value="' + esc(x ? x.period : "") + '"></div>' +
+    '<div class="field"><label>Location</label><input type="text" id="x_loc" value="' + esc(x ? x.location : "") + '"></div>' +
+    '<div class="field full"><label>Description</label><textarea id="x_desc" rows="3">' + esc(x ? x.desc || x.description : "") + "</textarea></div>" +
+    '</div><div class="modal-actions"><button type="button" class="btn btn-ghost" id="x_cancel">Cancel</button>' +
+    '<button type="submit" class="btn btn-accent">Save Experience</button></div></form>');
+
+  document.getElementById("x_cancel").addEventListener("click", closeModal);
+  document.getElementById("expModalForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const obj = {
+      id: x ? x.id : uid(),
+      role: document.getElementById("x_role").value.trim(),
+      org: document.getElementById("x_org").value.trim(),
+      period: document.getElementById("x_period").value.trim(),
+      location: document.getElementById("x_loc").value.trim(),
+      description: document.getElementById("x_desc").value.trim()
+    };
+    if (x) { Object.assign(x, obj); } else { DB.experience.unshift(obj); }
+    closeModal();
+    await persistToSupabase("experiences", obj);
+    renderAdmin(); toast("Experience saved ✓");
+  });
+}
+
+document.getElementById("addEduBtn").addEventListener("click", () => openEduModal(null));
+function openEduModal(x){
+  openModal(x ? "Edit education" : "Add education",
+    '<form id="eduModalForm"><div class="form-grid">' +
+    '<div class="field full"><label>Degree</label><input type="text" id="e_deg" required value="' + esc(x ? x.degree : "") + '"></div>' +
+    '<div class="field full"><label>Institution</label><input type="text" id="e_inst" value="' + esc(x ? x.institution : "") + '"></div>' +
+    '<div class="field"><label>Period</label><input type="text" id="e_period" value="' + esc(x ? x.period : "") + '"></div>' +
+    '<div class="field"><label>Grade</label><input type="text" id="e_grade" value="' + esc(x ? x.grade : "") + '"></div>' +
+    '</div><div class="modal-actions"><button type="button" class="btn btn-ghost" id="e_cancel">Cancel</button>' +
+    '<button type="submit" class="btn btn-accent">Save Education</button></div></form>');
+
+  document.getElementById("e_cancel").addEventListener("click", closeModal);
+  document.getElementById("eduModalForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const obj = {
+      id: x ? x.id : uid(),
+      degree: document.getElementById("e_deg").value.trim(),
+      institution: document.getElementById("e_inst").value.trim(),
+      period: document.getElementById("e_period").value.trim(),
+      grade: document.getElementById("e_grade").value.trim()
+    };
+    if (x) { Object.assign(x, obj); } else { DB.education.unshift(obj); }
+    closeModal();
+    await persistToSupabase("educations", obj);
+    renderAdmin(); toast("Education saved ✓");
+  });
+}
+
+document.getElementById("addCertBtn").addEventListener("click", () => openCertModal(null));
+function openCertModal(ct){
+  openModal(ct ? "Edit certificate" : "Add certificate",
+    '<form id="certModalForm"><div class="form-grid">' +
+    '<div class="field full"><label>Title</label><input type="text" id="c_title" required value="' + esc(ct ? ct.title : "") + '"></div>' +
+    '<div class="field full"><label>Issuer</label><input type="text" id="c_issuer" value="' + esc(ct ? ct.issuer : "") + '"></div>' +
+    '<div class="field"><label>Date</label><input type="text" id="c_date" value="' + esc(ct ? ct.date : "") + '"></div>' +
+    '<div class="field"><label>Credential ID</label><input type="text" id="c_cred" value="' + esc(ct ? ct.credId || ct.cred_id : "") + '"></div>' +
+    '<div class="field full"><label>Certificate Thumbnail Image</label><input type="file" id="c_imgFile" accept="image/*"><input type="text" id="c_img" value="' + esc(ct ? ct.image : "") + '" placeholder="https://... or uploaded image data" style="margin-top:8px"><div class="img-preview-box" id="c_imgBox" style="' + (ct && ct.image ? 'display:block' : 'display:none') + '"><img id="c_imgPrev" src="' + esc(ct ? ct.image : "") + '" alt="Preview"></div></div>' +
+    '</div><div class="modal-actions"><button type="button" class="btn btn-ghost" id="cCancel">Cancel</button>' +
+    '<button type="submit" class="btn btn-accent">Save Certificate</button></div></form>');
+
+  document.getElementById("c_imgFile").addEventListener("change", e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    toast("Processing image file...");
+    processImageFile(file, dataUrl => {
+      document.getElementById("c_img").value = dataUrl;
+      document.getElementById("c_imgPrev").src = dataUrl;
+      document.getElementById("c_imgBox").style.display = "block";
+      toast("Image ready ✓");
+    });
+  });
+
+  document.getElementById("c_img").addEventListener("input", e => {
+    const val = e.target.value.trim();
+    if (val) {
+      document.getElementById("c_imgPrev").src = val;
+      document.getElementById("c_imgBox").style.display = "block";
+    } else {
+      document.getElementById("c_imgBox").style.display = "none";
+    }
+  });
+
+  document.getElementById("cCancel").addEventListener("click", closeModal);
+  document.getElementById("certModalForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const obj = {
+      id: ct ? ct.id : uid(),
+      title: document.getElementById("c_title").value.trim(),
+      issuer: document.getElementById("c_issuer").value.trim(),
+      date: document.getElementById("c_date").value.trim(),
+      cred_id: document.getElementById("c_cred").value.trim(),
+      image: document.getElementById("c_img").value.trim()
+    };
+    if (ct) { Object.assign(ct, obj); } else { DB.certificates.unshift(obj); }
+    closeModal();
+    toast("Saving certificate image to Supabase...");
+    await persistToSupabase("certificates", obj);
+    renderAdmin(); toast("Certificate saved ✓");
+  });
+}
+
+function fillContactForm() {
+  const c = DB.contact || DEFAULTS.contact;
+  document.getElementById("cf_email").value = c.email || "";
+  document.getElementById("cf_phone").value = c.phone || "";
+  document.getElementById("cf_location").value = c.location || "";
+  document.getElementById("cf_sub").value = c.sub || "";
+  renderSocialEditor();
+}
+
+document.getElementById("contactForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  DB.contact.email = document.getElementById("cf_email").value.trim();
+  DB.contact.phone = document.getElementById("cf_phone").value.trim();
+  DB.contact.location = document.getElementById("cf_location").value.trim();
+  DB.contact.sub = document.getElementById("cf_sub").value.trim();
+  await persistToSupabase("contacts", { id: "main", ...DB.contact });
+  toast("Contact saved to Supabase ✓");
+});
+
+function renderSocialEditor() {
+  const box = document.getElementById("socialRows");
+  const rows = (DB.contact && DB.contact.socials && DB.contact.socials.length ? DB.contact.socials : [{ label: "", url: "" }]);
+  box.innerHTML = rows.map((s, i) =>
+    '<div class="social-row-edit">' +
+    '<input type="text" data-si="' + i + '" data-f="label" placeholder="Label" value="' + esc(s.label) + '">' +
+    '<input type="url" data-si="' + i + '" data-f="url" placeholder="https://..." value="' + esc(s.url) + '">' +
+    '<button type="button" class="icon-btn del" data-del="' + i + '">✕</button></div>').join("");
+}
+
+document.getElementById("socialRows").addEventListener("click", e => {
+  const b = e.target.closest("button[data-del]");
+  if (!b) return;
+  const i = parseInt(b.dataset.del, 10);
+  DB.contact.socials.splice(i, 1);
+  renderSocialEditor();
+});
+
+document.getElementById("addSocialBtn").addEventListener("click", () => {
+  if (!DB.contact.socials) DB.contact.socials = [];
+  DB.contact.socials.push({ label: "", url: "" });
+  renderSocialEditor();
+});
+
+document.getElementById("saveSocialsBtn").addEventListener("click", async () => {
+  const out = [];
+  document.querySelectorAll("#socialRows .social-row-edit").forEach(row => {
+    const label = row.querySelector('[data-f="label"]').value.trim();
+    const url = row.querySelector('[data-f="url"]').value.trim();
+    if (label && url) out.push({ label, url });
+  });
+  DB.contact.socials = out;
+  await persistToSupabase("contacts", { id: "main", ...DB.contact });
+  renderSocialEditor(); toast("Social links saved ✓");
+});
+
+async function bootAdmin() {
+  await loadFromSupabase();
+  checkAuth();
+  Core.subscribeRealtime(async function () {
+    await loadFromSupabase();
+    renderAdmin();
+  });
+}
+
+bootAdmin();
+</script>
+</body>
+</html>
