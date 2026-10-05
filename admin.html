@@ -784,6 +784,7 @@ function openCertModal(ct){
     '<div class="field full"><label>Issuer</label><input type="text" id="c_issuer" value="' + esc(ct ? ct.issuer : "") + '"></div>' +
     '<div class="field"><label>Date</label><input type="text" id="c_date" value="' + esc(ct ? ct.date : "") + '"></div>' +
     '<div class="field"><label>Credential ID</label><input type="text" id="c_cred" value="' + esc(ct ? ct.credId || ct.cred_id : "") + '"></div>' +
+    '<div class="field full"><label>Full Certificate URL</label><input type="url" id="c_link" value="' + esc(ct ? ct.link || "" : "") + '" placeholder="https://drive.google.com/..." aria-describedby="c_link_help"><small id="c_link_help">Paste a Google Drive share link or another public certificate URL.</small></div>' +
     '<div class="field full"><label>Certificate Thumbnail Image</label><input type="file" id="c_imgFile" accept="image/*"><input type="text" id="c_img" value="' + esc(ct ? ct.image : "") + '" placeholder="https://... or uploaded image data" style="margin-top:8px"><div class="img-preview-box" id="c_imgBox" style="' + (ct && ct.image ? 'display:block' : 'display:none') + '"><img id="c_imgPrev" src="' + esc(ct ? ct.image : "") + '" alt="Preview"></div></div>' +
     '</div><div class="modal-actions"><button type="button" class="btn btn-ghost" id="cCancel">Cancel</button>' +
     '<button type="submit" class="btn btn-accent">Save Certificate</button></div></form>');
@@ -813,14 +814,18 @@ function openCertModal(ct){
   document.getElementById("cCancel").addEventListener("click", closeModal);
   document.getElementById("certModalForm").addEventListener("submit", async e => {
     e.preventDefault();
+    const readField = id => {
+      const field = document.getElementById(id);
+      return field && typeof field.value === "string" ? field.value.trim() : "";
+    };
     const obj = {
       id: ct ? ct.id : uid(),
-      title: document.getElementById("c_title").value.trim(),
-      issuer: document.getElementById("c_issuer").value.trim(),
-      date: document.getElementById("c_date").value.trim(),
-      cred_id: document.getElementById("c_cred").value.trim(),
-      link: document.getElementById("c_link").value.trim(),
-      image: document.getElementById("c_img").value.trim()
+      title: readField("c_title"),
+      issuer: readField("c_issuer"),
+      date: readField("c_date"),
+      cred_id: readField("c_cred"),
+      link: readField("c_link"),
+      image: readField("c_img")
     };
     if (ct) { Object.assign(ct, obj); } else { DB.certificates.unshift(obj); }
     closeModal();
