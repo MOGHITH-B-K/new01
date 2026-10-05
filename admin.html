@@ -819,6 +819,7 @@ function openCertModal(ct){
       issuer: document.getElementById("c_issuer").value.trim(),
       date: document.getElementById("c_date").value.trim(),
       cred_id: document.getElementById("c_cred").value.trim(),
+      link: document.getElementById("c_link").value.trim(),
       image: document.getElementById("c_img").value.trim()
     };
     if (ct) { Object.assign(ct, obj); } else { DB.certificates.unshift(obj); }

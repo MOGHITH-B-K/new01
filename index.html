@@ -336,8 +336,7 @@ kbd{font-family:var(--font-mono);font-size:.75em;background:var(--surface-warm);
         <a href="#projects">Projects</a>
         <a href="#certificates">Certificates</a>
         <a href="#contact">Contact</a>
-        <a href="admin.html">Admin</a>
-        <a class="nav-cta" href="#contact">Get in touch</a>
+  <a class="nav-cta" href="#contact">Get in touch</a>
       </nav>
     </div>
   </header>
@@ -445,8 +444,7 @@ kbd{font-family:var(--font-mono);font-size:.75em;background:var(--surface-warm);
     <div class="wrap" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px">
       <p id="footLine"></p>
       <div style="display:flex;align-items:center;gap:16px">
-        <a href="admin.html" style="font-family:var(--font-mono);font-size:.7rem;color:var(--ink-dim)">⚙ Admin Console</a>
-        <span class="mono-label" id="liveStatus">Powered by Supabase Cloud</span>
+  <span class="mono-label" id="liveStatus">Powered by Supabase Cloud</span>
       </div>
     </div>
   </footer>
@@ -878,15 +876,25 @@ function renderPublic() {
   if (!certList.length) {
     certBox.innerHTML = '<div class="empty-note">No certificates added yet.</div>';
   } else {
-    certBox.innerHTML = certList.map(c =>
-      '<div class="cert-card">' +
-      (c.image ? '<img class="cert-thumb" src="' + esc(c.image) + '" alt="">' : '<div class="cert-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15l-2 5l2-1.5L14 20l-2-5z"/><circle cx="12" cy="9" r="6"/></svg></div>') +
-      '<div><h3>' + esc(c.title) + '</h3>' +
-      '<div class="cert-meta">' + esc(c.issuer || "") + '<span class="sep">•</span>' + esc(c.date || "") + '</div>' +
-      (c.credId || c.cred_id ? '<div class="cert-id">ID: ' + esc(c.credId || c.cred_id) + '</div>' : '') +
-      (c.link ? '<a class="cert-verify" href="' + esc(c.link) + '" target="_blank" rel="noopener">Verify credential →</a>' : '') +
-      '</div></div>'
-    ).join("");
+  certBox.innerHTML = certList.map(c => {
+  const link = (c.link || "").trim();
+  const cardClass = link ? "cert-card cert-linked" : "cert-card";
+  const openAttrs = link ? ' role="link" tabindex="0" data-cert-link="' + esc(link) + '"' : '';
+  return '<div class="' + cardClass + '"' + openAttrs + '>' +
+  (c.image ? '<img class="cert-thumb" src="' + esc(c.image) + '" alt="Certificate thumbnail for ' + esc(c.title) + '">' : '<div class="cert-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15l-2 5l2-1.5L14 20l-2-5z"/><circle cx="12" cy="9" r="6"/></svg></div>') +
+  '<div><h3>' + esc(c.title) + '</h3>' +
+  '<div class="cert-meta">' + esc(c.issuer || "") + '<span class="sep">•</span>' + esc(c.date || "") + '</div>' +
+  (c.credId || c.cred_id ? '<div class="cert-id">ID: ' + esc(c.credId || c.cred_id) + '</div>' : '') +
+  (link ? '<span class="cert-verify">View full certificate →</span>' : '') +
+  '</div></div>';
+  }).join("");
+  certBox.querySelectorAll("[data-cert-link]").forEach(card => {
+  const openCertificate = () => window.open(card.dataset.certLink, "_blank", "noopener,noreferrer");
+  card.addEventListener("click", openCertificate);
+  card.addEventListener("keydown", event => {
+  if (event.key === "Enter" || event.key === " ") { event.preventDefault(); openCertificate(); }
+  });
+  });
   }
 
   // Contact & Socials
