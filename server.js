@@ -223,6 +223,28 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+function startServer(port) {
+  const server = app.listen(port, () => {
+    console.log(`Server running on http://localhost:${port}`);
+  });
+
+  server.on('error', (error) => {
+    if (error.code !== 'EADDRINUSE') {
+      console.error('Unable to start server:', error);
+      process.exitCode = 1;
+      return;
+    }
+
+    if (process.env.PORT) {
+      console.error(`Port ${port} is already in use. Set PORT to an available port and restart the server.`);
+      process.exitCode = 1;
+      return;
+    }
+
+    const fallbackPort = port + 1;
+    console.warn(`Port ${port} is already in use. Retrying on port ${fallbackPort}.`);
+    startServer(fallbackPort);
+  });
+}
+
+startServer(PORT);
