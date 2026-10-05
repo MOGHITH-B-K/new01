@@ -41,15 +41,18 @@
   }
 
   function getCredentials() {
+    const cfg = global.PORTFOLIO_CONFIG || {};
+    const defaults = { url: cfg.supabaseUrl || "", key: cfg.supabaseKey || "" };
     try {
       const raw = localStorage.getItem(CONFIG_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (parsed.url && parsed.key) return { url: parsed.url, key: parsed.key };
+        if (parsed.url && parsed.key) return { url: parsed.url.trim(), key: parsed.key.trim() };
       }
-    } catch (e) {}
-    const cfg = global.PORTFOLIO_CONFIG || {};
-    return { url: cfg.supabaseUrl || "", key: cfg.supabaseKey || "" };
+    } catch (e) {
+      // Ignore malformed browser storage and use the hosted configuration.
+    }
+    return defaults;
   }
 
   function saveCredentials(url, key) {

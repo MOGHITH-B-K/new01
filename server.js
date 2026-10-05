@@ -12,8 +12,10 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname)));
 
 // Supabase Configuration
-const SUPABASE_URL = process.env.SUPABASE_URL || '';
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || '';
+// Keep the publishable client configuration available when the app is hosted
+// without environment variables. Never put a service-role key here.
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://totucsypcgydlnuaogby.supabase.co';
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'sb_publishable_vFaCeWQWCy5OYfz5FBGIgw_PdAhgwiE';
 
 let supabase = null;
 if (SUPABASE_URL && SUPABASE_ANON_KEY) {
