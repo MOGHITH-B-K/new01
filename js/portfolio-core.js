@@ -150,17 +150,28 @@
     return null;
   }
 
-  async function loadFromSupabase() {
-    if (!initSupabase()) {
-      try {
-        const res = await fetch("/api/portfolio");
-        if (res.ok) {
-          applyPayload(await res.json());
-          return { ok: true, via: "api" };
-        }
-      } catch (e) {}
-      return { ok: false, error: "Supabase is not configured." };
+  async function loadFromApi(creds) {
+    try {
+      const headers = {};
+      if (creds && creds.url && creds.key) {
+        headers["x-supabase-url"] = creds.url;
+        headers["x-supabase-key"] = creds.key;
+      }
+      const res = await fetch("/api/portfolio", { headers });
+      const body = await res.json();
+      if (res.ok) {
+        applyPayload(body);
+        return { ok: true, via: "api" };
+      }
+      return { ok: false, error: body.error || "Portfolio API request failed." };
+    } catch (e) {
+      return { ok: false, error: e.message || "Portfolio API is unavailable." };
     }
+  }
+
+  async function loadFromSupabase() {
+    const creds = getCredentials();
+    if (!initSupabase()) return loadFromApi(creds);
 
     const results = await Promise.all([
       supabaseClient.from("profiles").select("*").eq("id", "main").maybeSingle(),
@@ -172,7 +183,10 @@
     ]);
 
     const err = lastError(results);
-    if (err) return { ok: false, error: err.message };
+    if (err) {
+      const apiResult = await loadFromApi(creds);
+      return apiResult.ok ? apiResult : { ok: false, error: err.message };
+    }
 
     applyPayload({
       profile: results[0].data,
@@ -255,18 +269,35 @@
     return out;
   }
 
-  async function persist(table, payload, action) {
-    if (!initSupabase()) {
-      throw new Error("Supabase is not connected. Open Admin → Supabase Config.");
+  async function persistViaApi(table, payload, action, creds) {
+    const tablePath = table === "profiles" ? "profile" : table === "contacts" ? "contact" : table;
+    const url = action === "delete" ? "/api/" + tablePath + "/" + encodeURIComponent(payload) : "/api/" + tablePath;
+    const headers = { "Content-Type": "application/json" };
+    if (creds && creds.url && creds.key) {
+      headers["x-supabase-url"] = creds.url;
+      headers["x-supabase-key"] = creds.key;
     }
-    if (action === "delete") {
-      const { error } = await supabaseClient.from(table).delete().eq("id", payload);
+    const res = await fetch(url, { method: action === "delete" ? "DELETE" : table === "profiles" || table === "contacts" ? "PUT" : "POST", headers, body: action === "delete" ? undefined : JSON.stringify(toRow(table, payload)) });
+    const body = await res.json();
+    if (!res.ok) throw new Error(body.error || "Portfolio API request failed.");
+    return true;
+  }
+
+  async function persist(table, payload, action) {
+    const creds = getCredentials();
+    if (!initSupabase()) return persistViaApi(table, payload, action, creds);
+    try {
+      if (action === "delete") {
+        const { error } = await supabaseClient.from(table).delete().eq("id", payload);
+        throwIfError(error);
+        return true;
+      }
+      const { error } = await supabaseClient.from(table).upsert(compactRow(toRow(table, payload)));
       throwIfError(error);
       return true;
+    } catch (error) {
+      return persistViaApi(table, payload, action, creds);
     }
-    const { error } = await supabaseClient.from(table).upsert(compactRow(toRow(table, payload)));
-    throwIfError(error);
-    return true;
   }
 
   function subscribeRealtime(onChange) {
