@@ -784,6 +784,7 @@ function openCertModal(ct){
     '<div class="field full"><label>Issuer</label><input type="text" id="c_issuer" value="' + esc(ct ? ct.issuer : "") + '"></div>' +
     '<div class="field"><label>Date</label><input type="text" id="c_date" value="' + esc(ct ? ct.date : "") + '"></div>' +
     '<div class="field"><label>Credential ID</label><input type="text" id="c_cred" value="' + esc(ct ? ct.credId || ct.cred_id : "") + '"></div>' +
+    '<div class="field full"><label>Full Certificate URL</label><input type="url" id="c_link" value="' + esc(ct ? ct.link || "" : "") + '" placeholder="https://drive.google.com/..." aria-describedby="c_link_help"><small id="c_link_help">Paste a Google Drive share link or another public certificate URL.</small></div>' +
     '<div class="field full"><label>Certificate Thumbnail Image</label><input type="file" id="c_imgFile" accept="image/*"><input type="text" id="c_img" value="' + esc(ct ? ct.image : "") + '" placeholder="https://... or uploaded image data" style="margin-top:8px"><div class="img-preview-box" id="c_imgBox" style="' + (ct && ct.image ? 'display:block' : 'display:none') + '"><img id="c_imgPrev" src="' + esc(ct ? ct.image : "") + '" alt="Preview"></div></div>' +
     '</div><div class="modal-actions"><button type="button" class="btn btn-ghost" id="cCancel">Cancel</button>' +
     '<button type="submit" class="btn btn-accent">Save Certificate</button></div></form>');
