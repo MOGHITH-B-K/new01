@@ -814,14 +814,18 @@ function openCertModal(ct){
   document.getElementById("cCancel").addEventListener("click", closeModal);
   document.getElementById("certModalForm").addEventListener("submit", async e => {
     e.preventDefault();
+    const readField = id => {
+      const field = document.getElementById(id);
+      return field && typeof field.value === "string" ? field.value.trim() : "";
+    };
     const obj = {
       id: ct ? ct.id : uid(),
-      title: document.getElementById("c_title").value.trim(),
-      issuer: document.getElementById("c_issuer").value.trim(),
-      date: document.getElementById("c_date").value.trim(),
-      cred_id: document.getElementById("c_cred").value.trim(),
-      link: document.getElementById("c_link").value.trim(),
-      image: document.getElementById("c_img").value.trim()
+      title: readField("c_title"),
+      issuer: readField("c_issuer"),
+      date: readField("c_date"),
+      cred_id: readField("c_cred"),
+      link: readField("c_link"),
+      image: readField("c_img")
     };
     if (ct) { Object.assign(ct, obj); } else { DB.certificates.unshift(obj); }
     closeModal();
