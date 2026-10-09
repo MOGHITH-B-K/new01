@@ -249,4 +249,10 @@ function startServer(port) {
   });
 }
 
-startServer(PORT);
+// Vercel imports this file as a serverless function. Only listen when run directly,
+// so deployments do not try to bind a second process to a fixed port.
+if (require.main === module) {
+  startServer(PORT);
+}
+
+module.exports = app;
